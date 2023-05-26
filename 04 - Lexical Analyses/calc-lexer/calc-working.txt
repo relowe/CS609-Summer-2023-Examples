@@ -1,0 +1,38 @@
+Parser Grammar
+==============
+< Program >     ::= < Program > < Statement > 
+                    | < Statement >
+
+< Statement >   ::= < Expression > NEWLINE
+
+< Expression >  ::= < Expression > PLUS < Term  >
+                    | < Expression > MINUS < Term >
+                    | < Term >
+
+< Term >        ::= < Term  > TIMES  < Factor >
+                    | < Term > DIVIDE < Factor >
+                    | < Factor >
+
+< Factor >      ::= < Base > POW < Factor >
+                    | < Base >
+
+< Base >        ::= LPAREN < Expression > RPAREN
+                    | MINUS < Expression > 
+                    | < Number >
+
+< Number >      ::= INTLIT
+                    REALLIT
+
+
+Lexer Grammar
+=============
+NEWLINE     \n
+PLUS        +
+MINUS       -
+TIMES       *
+DIVIDE      /
+POW         ^
+LPAREN      (
+RPAREN      )
+INTLIT      [0-9]+
+REALLIT     INTLINT.INTLIT
