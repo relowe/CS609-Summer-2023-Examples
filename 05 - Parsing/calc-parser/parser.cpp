@@ -2,6 +2,10 @@
 #include <sstream>
 #include "parser.h"
 
+//////////////////////////////////////////
+// Parser Implementation
+//////////////////////////////////////////
+
 // initalize the lexer and get the first token
 Parser::Parser(Lexer &_lexer) : _lexer(_lexer)
 {
@@ -34,7 +38,7 @@ void Parser::must_be(Token tok)
 }
 
 
-//advanc the lexer
+//advance the lexer
 void Parser::next()
 {
     _curtok = _lexer.next();
@@ -83,8 +87,8 @@ ParseTree *Parser::parse_expression()
 
 
 /*
- * < Expression' > ::= PLUS < Term  > < Expression ' >
- *                     | MINUS < Term > < Expression ' >
+ * < Expression' > ::= PLUS < Term  > < Expression' >
+ *                     | MINUS < Term > < Expression' >
  *                     | ""
  */
 ParseTree *Parser::parse_expression_prime()
@@ -194,7 +198,9 @@ ParseTree *Parser::parse_number()
 }
 
 
-
+//////////////////////////////////////////
+// ParseError Implementation
+//////////////////////////////////////////
 
 ParseError::ParseError(LexerToken &_tok)
 {
@@ -209,14 +215,14 @@ ParseError::ParseError(LexerToken &_tok)
 }
 
 
-const char* ParseError::what()
+const char* ParseError::what() const _NOEXCEPT
 {
 
     return _msg.c_str();
 }
 
 
-LexerToken ParseError::token()
+LexerToken ParseError::token() const
 {
     return _tok;
 }

@@ -7,8 +7,8 @@ Parser Grammar
 
 < Expression >  ::= < Term > < Expression' >
 
-< Expression' > ::= PLUS < Term  > < Expression ' >
-                    | MINUS < Term > < Expression ' >
+< Expression' > ::= PLUS < Term  > < Expression' >
+                    | MINUS < Term > < Expression' >
                     | ""
                     
 < Term >        ::= < Factor > < Term' >

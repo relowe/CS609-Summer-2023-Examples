@@ -13,8 +13,8 @@ class ParseError : std::exception
 {
 public:
     ParseError(LexerToken &tok);
-    const char* what();
-    LexerToken token();
+    virtual const char* what() const _NOEXCEPT;
+    virtual LexerToken token() const;
 
 private:
     LexerToken _tok;
@@ -26,26 +26,26 @@ class Parser
 {
 public:
     Parser(Lexer &_lexer);
-    ParseTree *parse();
+    virtual ParseTree *parse();
 
 protected:
     //token matches
-    bool has(Token tok);
-    void must_be(Token tok);
+    virtual bool has(Token tok);
+    virtual void must_be(Token tok);
 
     //advanc the lexer
-    void next();
+    virtual void next();
 
     // non-terminal parse functions
-    ParseTree *parse_program();
-    ParseTree *parse_statement();
-    ParseTree *parse_expression();
-    ParseTree *parse_expression_prime();
-    ParseTree *parse_term();
-    ParseTree *parse_term_prime();
-    ParseTree *parse_factor();
-    ParseTree *parse_base();
-    ParseTree *parse_number();
+    virtual ParseTree *parse_program();
+    virtual ParseTree *parse_statement();
+    virtual ParseTree *parse_expression();
+    virtual ParseTree *parse_expression_prime();
+    virtual ParseTree *parse_term();
+    virtual ParseTree *parse_term_prime();
+    virtual ParseTree *parse_factor();
+    virtual ParseTree *parse_base();
+    virtual ParseTree *parse_number();
 
 private:
     Lexer &_lexer;
