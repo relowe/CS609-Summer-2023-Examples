@@ -24,8 +24,10 @@ int main(int argc, char **argv) {
     try {
         Lexer lexer(file);
         Parser parser(lexer);
-        parser.parse();
+        ParseTree *tree = parser.parse();
         file.close();
+
+        tree->print(0);
     } catch(ParseError e) {
         std::cerr << e.what() << std::endl;
     }

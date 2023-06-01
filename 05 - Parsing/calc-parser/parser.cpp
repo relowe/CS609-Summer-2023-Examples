@@ -1,6 +1,8 @@
 #include <iostream>
+#include <iomanip>
 #include <sstream>
 #include "parser.h"
+#include "op.h"
 
 //////////////////////////////////////////
 // Parser Implementation
@@ -45,6 +47,13 @@ void Parser::next()
 }
 
 
+// get the current token
+LexerToken Parser::curtok() const
+{
+    return _curtok;
+}
+
+
 // non-terminal parse functions
 
 /*
@@ -53,12 +62,14 @@ void Parser::next()
  */
 ParseTree *Parser::parse_program()
 {
+    Program *result = new Program(curtok());
+
     // Technically, this is not LL(1), but it is easy enough to handle 
     // this with a while loop
     while(not has(TEOF)) {
-        parse_statement();
+        result->push(parse_statement());
     }
-    return nullptr;
+    return result;
 }
 
 
@@ -67,11 +78,11 @@ ParseTree *Parser::parse_program()
  */
 ParseTree *Parser::parse_statement()
 {
-    parse_expression();
+    ParseTree *result = parse_expression();
     must_be(NEWLINE);
     next();
 
-    return nullptr;
+    return result;
 }
 
 
@@ -80,9 +91,8 @@ ParseTree *Parser::parse_statement()
  */
 ParseTree *Parser::parse_expression()
 {
-    parse_term();
-    parse_expression_prime();
-    return nullptr;
+    ParseTree *left = parse_term();
+    return parse_expression_prime(left);
 }
 
 
@@ -91,20 +101,30 @@ ParseTree *Parser::parse_expression()
  *                     | MINUS < Term > < Expression' >
  *                     | ""
  */
-ParseTree *Parser::parse_expression_prime()
+ParseTree *Parser::parse_expression_prime(ParseTree *left)
 {
     if(has(PLUS)) {
+        // start the parse tree
+        Add *result = new Add(curtok());
         next();
-        parse_term();
-        parse_expression_prime();
+
+        //get the children
+        result->left(left);
+        result->right(parse_term());
+        return parse_expression_prime(result);
     } else if(has(MINUS)) {
+        // start the parse tree
+        Sub *result = new Sub(curtok());
         next();
-        parse_term();
-        parse_expression_prime();
+
+        // get the children
+        result->left(left);
+        result->right(parse_term());
+        return parse_expression_prime(result);
     }
 
     // nothing to do for the empty case
-    return nullptr;
+    return left;
 }
 
 
@@ -113,10 +133,8 @@ ParseTree *Parser::parse_expression_prime()
  */
 ParseTree *Parser::parse_term()
 {
-    parse_factor();
-    parse_term_prime();
-
-    return nullptr;
+    ParseTree *left = parse_factor();
+    return parse_term_prime(left);
 }
 
 
@@ -125,20 +143,29 @@ ParseTree *Parser::parse_term()
  *                     | DIVIDE < Factor > < Term' >
  *                     | ""
  */
-ParseTree *Parser::parse_term_prime()
+ParseTree *Parser::parse_term_prime(ParseTree *left)
 {
     if(has(TIMES)) {
+        // start the parse tree
+        Mul *result = new Mul(curtok());
         next();
-        parse_factor();
-        parse_term_prime();
+
+        // get the children
+        result->left(left);
+        result->right(parse_factor());
+        return parse_term_prime(result);
     } else if(has(DIVIDE)) {
+        // start the parse tree
+        Div *result = new Div(curtok());
         next();
-        parse_factor();
-        parse_term_prime();
+
+        result->left(left);
+        result->right(parse_factor());
+        return parse_term_prime(result);
     }
 
     //empty string, nothing to do
-    return nullptr;
+    return left;
 }
 
 
@@ -148,12 +175,18 @@ ParseTree *Parser::parse_term_prime()
  */
 ParseTree *Parser::parse_factor()
 {
-    parse_base();
+    ParseTree *left = parse_base();
     if(has(POW)) {
+        //create the parse tree
+        Pow *result = new Pow(curtok());
         next();
-        parse_factor();
+
+        // get the children
+        result->left(left);
+        result->right(parse_factor());
+        return result;
     }
-    return nullptr;
+    return left;
 }
 
 
@@ -166,17 +199,18 @@ ParseTree *Parser::parse_base()
 {
     if(has(LPAREN)) {
         next();
-        parse_expression();
+        ParseTree *result = parse_expression();
         must_be(RPAREN);
         next();
+        return result;
     } else if(has(MINUS)) {
+        Neg *result = new Neg(curtok());
         next();
-        parse_expression();
+        result->child(parse_expression());
+        return result;
     } else {
-        parse_number();
+        return parse_number();
     }
-    
-    return nullptr;
 }
 
 
@@ -186,15 +220,18 @@ ParseTree *Parser::parse_base()
  */
 ParseTree *Parser::parse_number()
 {
+    ParseTree *result;
+
     if(has(INTLIT)) {
+        result = new Number(curtok());
         next();
-        return nullptr;
     } else {
         must_be(REALLIT);
+        result = new Number(curtok());
         next();
     }
 
-    return nullptr;
+    return result;
 }
 
 
@@ -225,4 +262,41 @@ const char* ParseError::what() const _NOEXCEPT
 LexerToken ParseError::token() const
 {
     return _tok;
+}
+
+
+//////////////////////////////////////////
+// ParseTree Implementation
+//////////////////////////////////////////
+
+ParseTree::ParseTree(LexerToken &token)
+{
+    this->_token = token;
+}
+
+
+// get the token of the parse tree
+LexerToken ParseTree::token() const
+{
+    return _token;
+}
+
+
+// print the tree (for debug purposes)
+void ParseTree::print(int depth) const
+{
+    print_prefix(depth);
+    std::cout << TSTR[token().token] 
+              << ": " << token().lexeme << std::endl;
+}
+
+
+// print the prefix for the tree
+void ParseTree::print_prefix(int depth) const
+{
+    // do nothing if there is no depth to draw.
+    if(depth <= 0) {
+        return;
+    }
+    std::cout << std::setw(depth*2) << "#";
 }
