@@ -2,30 +2,14 @@
 #define PARSER_H
 #include <iostream>
 #include "lexer.h"
-
-class ParseTree
-{
-public:
-    ParseTree(LexerToken &token);
-
-    // get the token of the parse tree
-    virtual LexerToken token() const;
-
-    // print the tree (for debug purposes)
-    virtual void print(int depth) const;
-
-    // print the prefix for the tree
-    virtual void print_prefix(int depth) const;
-private:
-    LexerToken _token;
-};
+#include "op.h"
 
 
 class ParseError : std::exception
 {
 public:
     ParseError(LexerToken &tok);
-    virtual const char* what() const _NOEXCEPT;
+    virtual const char* what() const noexcept;
     virtual LexerToken token() const;
 
 private:

@@ -2,12 +2,73 @@
 // trees of the calc operations. 
 #ifndef OP_H
 #define OP_H
+#include <iostream>
 #include <vector>
-#include "parser.h"
+#include "lexer.h"
+
+//////////////////////////////////////////
+// Multi-Typed Result Returns
+//////////////////////////////////////////
+union ResultField
+{
+    int i;
+    double r;
+};
+
+
+enum ResultType 
+{
+    VOID=0,
+    INTEGER,
+    REAL
+};
+
+
+struct Result
+{
+    // the value and type of the result
+    ResultField val;
+    ResultType type;
+};
+
+// convert result types to strings
+extern const char* RTSTR[];
+
+// print result values
+std::ostream& operator<<(std::ostream& os, const Result &result);
+
+// A macro to extract the numeric result from Result
+#define NUM_RESULT(res) ((res).type == INTEGER ? (res).val.i : (res).val.r)
+
+// A macro to assign the correct numeric field
+#define NUM_ASSIGN(res, n) ((res).type == INTEGER ? (res).val.i=(n) : (res).val.r=(n))
+
 
 //////////////////////////////////////////
 // Base Classes
 //////////////////////////////////////////
+class ParseTree
+{
+public:
+    //constructor and destructor
+    ParseTree(LexerToken &token);
+    virtual ~ParseTree();
+
+    // get the token of the parse tree
+    virtual LexerToken token() const;
+
+    // evaluate the parse tree
+    virtual Result eval()=0;
+
+    // print the tree (for debug purposes)
+    virtual void print(int depth) const;
+
+    // print the prefix for the tree
+    virtual void print_prefix(int depth) const;
+private:
+    LexerToken _token;
+};
+
 
 // Base class for unary operations
 class UnaryOp : public ParseTree
@@ -17,7 +78,7 @@ public:
     UnaryOp(LexerToken &_token);
 
     // destructor
-    ~UnaryOp();
+    virtual ~UnaryOp();
 
     // give access to the child
     virtual ParseTree *child() const;
@@ -38,7 +99,7 @@ public:
     BinaryOp(LexerToken &_token);
 
     //destructor
-    ~BinaryOp();
+    virtual ~BinaryOp();
 
     // give access to the left child
     virtual ParseTree *left() const;
@@ -63,7 +124,7 @@ class NaryOp : public ParseTree
 public:
     // constructor and destructor
     NaryOp(LexerToken _token);
-    ~NaryOp();
+    virtual ~NaryOp();
 
     // push a child onto the list
     virtual void push(ParseTree *child);
@@ -88,6 +149,7 @@ class Program : public NaryOp
 {
 public:
     Program(LexerToken _token);
+    virtual Result eval();
     virtual void print(int depth) const;
 };
 
@@ -97,6 +159,7 @@ class Add : public BinaryOp
 {
 public:
     Add(LexerToken _token);
+    virtual Result eval();
 };
 
 
@@ -105,6 +168,7 @@ class Sub : public BinaryOp
 {
 public:
     Sub(LexerToken _token);
+    virtual Result eval();
 };
 
 
@@ -113,6 +177,7 @@ class Mul: public BinaryOp
 {
 public:
     Mul(LexerToken _token);
+    virtual Result eval();
 };
 
 
@@ -121,6 +186,7 @@ class Div: public BinaryOp
 {
 public:
     Div(LexerToken _token);
+    virtual Result eval();
 };
 
 
@@ -129,6 +195,7 @@ class Pow: public BinaryOp
 {
 public:
     Pow(LexerToken _token);
+    virtual Result eval();
 };
 
 
@@ -137,7 +204,7 @@ class Neg: public UnaryOp
 {
 public:
     Neg(LexerToken _token);
-
+    virtual Result eval();
     virtual void print(int depth) const;
 };
 
@@ -147,5 +214,8 @@ class Number: public ParseTree
 {
 public:
     Number(LexerToken _token);
+    virtual Result eval();
+protected:
+    Result _val;
 };
 #endif

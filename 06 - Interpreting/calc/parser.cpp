@@ -252,7 +252,7 @@ ParseError::ParseError(LexerToken &_tok)
 }
 
 
-const char* ParseError::what() const _NOEXCEPT
+const char* ParseError::what() const noexcept
 {
 
     return _msg.c_str();
@@ -262,48 +262,4 @@ const char* ParseError::what() const _NOEXCEPT
 LexerToken ParseError::token() const
 {
     return _tok;
-}
-
-
-//////////////////////////////////////////
-// ParseTree Implementation
-//////////////////////////////////////////
-
-ParseTree::ParseTree(LexerToken &token)
-{
-    this->_token = token;
-}
-
-
-// get the token of the parse tree
-LexerToken ParseTree::token() const
-{
-    return _token;
-}
-
-
-// print the tree (for debug purposes)
-void ParseTree::print(int depth) const
-{
-    print_prefix(depth);
-    std::cout << TSTR[token().token] 
-              << ": " << token().lexeme << std::endl;
-}
-
-
-// print the prefix for the tree
-void ParseTree::print_prefix(int depth) const
-{
-    // no prefix for the root.
-    if(depth == 0) return;
-
-    for(int i=1; i<depth; i++) {
-        std::cout << "  |";
-    }
-
-    if(depth > 1) {
-        std::cout << "--+";
-    } else {
-        std::cout << "  +";
-    }
 }
