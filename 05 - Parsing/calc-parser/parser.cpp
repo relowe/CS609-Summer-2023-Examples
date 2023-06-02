@@ -294,9 +294,16 @@ void ParseTree::print(int depth) const
 // print the prefix for the tree
 void ParseTree::print_prefix(int depth) const
 {
-    // do nothing if there is no depth to draw.
-    if(depth <= 0) {
-        return;
+    // no prefix for the root.
+    if(depth == 0) return;
+
+    for(int i=1; i<depth; i++) {
+        std::cout << "  |";
     }
-    std::cout << std::setw(depth*2) << "#";
+
+    if(depth > 1) {
+        std::cout << "--+";
+    } else {
+        std::cout << "  +";
+    }
 }

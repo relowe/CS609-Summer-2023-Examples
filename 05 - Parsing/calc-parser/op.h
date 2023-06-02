@@ -25,7 +25,7 @@ public:
 
     // print the tree with 1 child
     virtual void print(int depth) const;
-private:
+protected:
     ParseTree *_child;    
 };
 
@@ -51,7 +51,7 @@ public:
     // print the tree with 2 children
     virtual void print(int depth) const;
 
-private:
+protected:
     ParseTree *_lchild;    
     ParseTree *_rchild;    
 };
@@ -74,7 +74,7 @@ public:
 
     // print the tree
     virtual void print(int depth) const;
-private:
+protected:
     std::vector<ParseTree*> _children;
 };
 
@@ -88,6 +88,7 @@ class Program : public NaryOp
 {
 public:
     Program(LexerToken _token);
+    virtual void print(int depth) const;
 };
 
 
@@ -136,6 +137,8 @@ class Neg: public UnaryOp
 {
 public:
     Neg(LexerToken _token);
+
+    virtual void print(int depth) const;
 };
 
 

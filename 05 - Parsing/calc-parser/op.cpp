@@ -190,6 +190,27 @@ Program::Program(LexerToken _token) : NaryOp(_token)
 }
 
 
+void Program::print(int depth) const
+{
+    int n = _children.size();
+    int m = n/2;
+
+    // print the right hand side
+    for(int i=n-1; i>=m; i--) {
+        _children[i]->print(depth+1);
+    }
+
+    //print ourself
+    print_prefix(depth);
+    std::cout << "PROGRAM" << std::endl;
+
+    // print the left hand side
+    for(int i=m-1; i>=0; i--) {
+        _children[i]->print(depth+1);
+    }
+}
+
+
 //////////////////////////////////////////
 // Add implementation
 //////////////////////////////////////////
@@ -247,6 +268,14 @@ Pow::Pow(LexerToken _token) : BinaryOp(_token)
 Neg::Neg(LexerToken _token) : UnaryOp(_token)
 {
     // This space left intentionally blank
+}
+
+
+void Neg::print(int depth) const
+{
+    print_prefix(depth);
+    std::cout << "NEG: -" << std::endl;
+    child()->print(depth+1);
 }
 
 
