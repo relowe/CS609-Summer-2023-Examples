@@ -1,0 +1,4 @@
+calc
+lexer_test
+parser_test
+*.o
