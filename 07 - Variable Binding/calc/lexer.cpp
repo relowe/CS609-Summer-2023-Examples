@@ -21,7 +21,8 @@ const char* TSTR[] = {
     "PRINT",
     "IDENTIFIER",
     "INTEGER",
-    "REAL"
+    "REAL",
+    "EQUAL"
 };
 
 
@@ -228,6 +229,10 @@ bool Lexer::lex_single()
 
         case ')':
             _curtok.token = RPAREN;
+            break;
+
+        case '=':
+            _curtok.token = EQUAL;
             break;
 
         default:

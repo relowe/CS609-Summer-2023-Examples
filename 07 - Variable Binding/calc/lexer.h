@@ -23,7 +23,8 @@ enum Token
     PRINT,
     IDENTIFIER,
     INTEGER_DECL,
-    REAL_DECL
+    REAL_DECL,
+    EQUAL
 };
 
 // translate tokens into strings for easy debugging
