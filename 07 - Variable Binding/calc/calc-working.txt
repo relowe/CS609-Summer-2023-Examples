@@ -4,7 +4,15 @@ Parser Grammar
                     | < Statement >
 
 < Statement >   ::= < Expression > NEWLINE
+                    | < Var-Decl > NEWLINE
+                    | < Assignment > NEWLINE
                     | < Print > NEWLINE
+
+< Var-Decl >    ::= < Type > < Identifier >
+
+< Assignment >  ::= < Identifier > EQUAL < Expression >
+
+< Type >        ::= INTEGER | REAL
 
 < Print >       ::= PRINT < Expression >
 
@@ -29,6 +37,7 @@ Parser Grammar
 
 < Number >      ::= INTLIT
                     | REALLIT
+                    | IDENTIFIER
 
 
 Lexer Grammar
