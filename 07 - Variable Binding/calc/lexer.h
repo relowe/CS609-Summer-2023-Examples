@@ -21,7 +21,9 @@ enum Token
     INTLIT,
     REALLIT,
     PRINT,
-    IDENTIFIER
+    IDENTIFIER,
+    INTEGER_DECL,
+    REAL_DECL
 };
 
 // translate tokens into strings for easy debugging

@@ -45,3 +45,5 @@ INTLIT      [0-9]+
 REALLIT     INTLINT.INTLIT
 PRINT       print
 IDENTIFIER  [a-zA-Z_][a-zA-Z0-9_]*
+INTEGER     integer
+REAL        real

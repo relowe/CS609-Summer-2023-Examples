@@ -19,7 +19,9 @@ const char* TSTR[] = {
     "INTLIT",
     "REALLIT",
     "PRINT",
-    "IDENTIFIER"
+    "IDENTIFIER",
+    "INTEGER",
+    "REAL"
 };
 
 
@@ -297,6 +299,10 @@ bool Lexer::lex_kw_id()
     // match our keywords
     if(_curtok.lexeme == "print") {
         _curtok.token = PRINT;
+    } else if(_curtok.lexeme == "integer") {
+        _curtok.token = INTEGER_DECL;
+    } else if(_curtok.lexeme == "real") {
+        _curtok.token = REAL_DECL;
     }
 
     return true;
