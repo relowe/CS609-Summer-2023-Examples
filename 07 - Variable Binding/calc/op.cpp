@@ -515,3 +515,72 @@ void ParseTree::print_prefix(int depth) const
         std::cout << "  +";
     }
 }
+
+
+
+//////////////////////////////////////////
+// Var Implementation
+//////////////////////////////////////////
+
+Var::Var(LexerToken _token) : ParseTree(_token)
+{
+}
+
+
+Result Var::eval()
+{
+    Result result;
+    result.type = VOID;
+
+    return result;
+}
+
+
+//////////////////////////////////////////
+// Print Implementation
+//////////////////////////////////////////
+Print::Print(LexerToken _token) : UnaryOp(_token)
+{
+}
+
+
+Result Print::eval()
+{
+    Result result;
+    result.type = VOID;
+
+    return result;
+}
+
+
+//////////////////////////////////////////
+// VarDecl Implementation
+//////////////////////////////////////////
+VarDecl::VarDecl(LexerToken _token) : UnaryOp(_token)
+{
+}
+
+Result VarDecl::eval()
+{
+    Result result;
+    result.type = VOID;
+
+    return result;
+}
+
+
+//////////////////////////////////////////
+// Assign Impelementation
+//////////////////////////////////////////
+Assign::Assign(LexerToken _token) : BinaryOp(_token)
+{
+}
+
+
+Result Assign::eval()
+{
+    Result result;
+    result.type = VOID;
+
+    return result;
+}

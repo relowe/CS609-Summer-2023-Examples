@@ -74,16 +74,81 @@ ParseTree *Parser::parse_program()
 
 
 /*
- * < Statement >   ::= < Expression > NEWLINE
+ * < Statement >   ::= < Identifier > < Statement' > NEWLINE
+ *                     | < Var-Decl > NEWLINE
+ *                     | < Print > NEWLINE
+ *                     | < Expression > NEWLINE
  */
 ParseTree *Parser::parse_statement()
 {
-    ParseTree *result = parse_expression();
+    ParseTree *result;
+
+    if(has(IDENTIFIER)) {
+        // statement which begin with an identifier
+        ParseTree *var = new Var(curtok());
+        next();
+        result = parse_statement_prime(var);
+    } else if(has(INTEGER_DECL) or has(REAL_DECL)) {
+        result = parse_var_decl();
+    } else if(has(PRINT)) {
+        result = parse_print();
+    } else {
+        result = parse_expression();
+    }
+
+    // handle the newline at the end of the statement
     must_be(NEWLINE);
     next();
 
     return result;
 }
+
+
+/*
+ * < Statement' >  ::= EQUAL < Expression > 
+ *                     | < Expression' >
+ */
+ParseTree *Parser::parse_statement_prime(ParseTree *left)
+{
+    if(has(EQUAL)) {
+        Assign *result;
+        result = new Assign(curtok());
+        next();
+        result->left(left);
+        result->right(parse_expression());
+        return result;
+    } else {
+        return parse_expression_prime(left);
+    }
+}
+
+
+/*
+ * < Var-Decl >    ::= < Type > < Identifier >
+ */
+ParseTree *Parser::parse_var_decl()
+{
+    VarDecl *result = new VarDecl(curtok());
+    next();
+    must_be(IDENTIFIER);
+    result->child(new Var(curtok()));
+    next();
+
+    return result;
+}
+
+
+/*
+ * < Print >       ::= PRINT < Expression >
+ */
+ParseTree *Parser::parse_print()
+{
+    Print *result = new Print(curtok());
+    next();
+    result->child(parse_expression());
+    return result;
+}
+
 
 
 /*
@@ -217,12 +282,16 @@ ParseTree *Parser::parse_base()
 /*
  * < Number >      ::= INTLIT
  *                     | REALLIT
+ *                     | IDENTIFIER
  */
 ParseTree *Parser::parse_number()
 {
     ParseTree *result;
 
-    if(has(INTLIT)) {
+    if(has(IDENTIFIER)) {
+        result = new Var(curtok());
+        next();
+    } else if(has(INTLIT)) {
         result = new Number(curtok());
         next();
     } else {

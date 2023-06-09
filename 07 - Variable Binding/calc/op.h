@@ -218,4 +218,40 @@ public:
 protected:
     Result _val;
 };
+
+
+// A Variable Retrieval
+class Var: public ParseTree
+{
+public:
+    Var(LexerToken _token);
+    virtual Result eval();
+};
+
+
+// A print operation
+class Print: public UnaryOp 
+{
+public:
+    Print(LexerToken _token);
+    virtual Result eval();
+};
+
+
+// A variable declaration operation
+class VarDecl: public UnaryOp 
+{
+public:
+    VarDecl(LexerToken _token);
+    virtual Result eval();
+};
+
+
+// An Assignment Operation
+class Assign : public BinaryOp
+{
+public:
+    Assign(LexerToken _token);
+    virtual Result eval();
+};
 #endif

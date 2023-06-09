@@ -38,8 +38,11 @@ protected:
     // non-terminal parse functions
     virtual ParseTree *parse_program();
     virtual ParseTree *parse_statement();
+    virtual ParseTree *parse_statement_prime(ParseTree *left);
     virtual ParseTree *parse_expression();
     virtual ParseTree *parse_expression_prime(ParseTree *left);
+    virtual ParseTree *parse_var_decl();
+    virtual ParseTree *parse_print();
     virtual ParseTree *parse_term();
     virtual ParseTree *parse_term_prime(ParseTree *left);
     virtual ParseTree *parse_factor();

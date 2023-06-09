@@ -3,16 +3,15 @@ Parser Grammar
 < Program >     ::= < Program > < Statement > 
                     | < Statement >
 
-< Statement >   ::= < Expression > NEWLINE
+< Statement >   ::= < Identifier > < Statement' > NEWLINE
                     | < Var-Decl > NEWLINE
-                    | < Assignment > NEWLINE
                     | < Print > NEWLINE
+                    | < Expression > NEWLINE
+
+< Statement' >  ::= EQUAL < Expression > 
+                    | < Expression' >
 
 < Var-Decl >    ::= < Type > < Identifier >
-
-< Assignment >  ::= < Identifier > EQUAL < Expression >
-
-< Type >        ::= INTEGER | REAL
 
 < Print >       ::= PRINT < Expression >
 
@@ -56,3 +55,4 @@ PRINT       print
 IDENTIFIER  [a-zA-Z_][a-zA-Z0-9_]*
 INTEGER     integer
 REAL        real
+EQUAL       =
