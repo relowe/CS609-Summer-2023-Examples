@@ -19,7 +19,9 @@ enum Token
     LPAREN,
     RPAREN,
     INTLIT,
-    REALLIT
+    REALLIT,
+    PRINT,
+    IDENTIFIER
 };
 
 // translate tokens into strings for easy debugging
@@ -78,6 +80,9 @@ protected:
 
     // attempt to lex a number
     virtual bool lex_number();
+
+    // attempt to lex a keyword or identifier
+    virtual bool lex_kw_id();
 
 private:
     std::istream &_is;      // The stream we are lexing

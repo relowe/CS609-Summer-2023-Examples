@@ -17,7 +17,9 @@ const char* TSTR[] = {
     "LPAREN",
     "RPAREN",
     "INTLIT",
-    "REALLIT"
+    "REALLIT",
+    "PRINT",
+    "IDENTIFIER"
 };
 
 
@@ -106,6 +108,8 @@ LexerToken Lexer::next()
     } else if(lex_single()) {
         return current();
     } else if(lex_number()) {
+        return current();
+    } else if(lex_kw_id()) {
         return current();
     } else {
         // nothing matched, consume and move on
@@ -276,3 +280,24 @@ bool Lexer::lex_number()
 }
 
 
+// attempt to lex a keyword or identifier
+bool Lexer::lex_kw_id()
+{
+    // our only failure is if we don't match a letter or _ in the beginning.
+    if(not isalpha(_cur) and _cur != '_') {
+        return false;
+    }
+
+    // assume that we have an identifier
+    _curtok.token = IDENTIFIER;
+
+    // capture all characters consistent with kw/id pairing
+    consume(isalnum);
+
+    // match our keywords
+    if(_curtok.lexeme == "print") {
+        _curtok.token = PRINT;
+    }
+
+    return true;
+}
