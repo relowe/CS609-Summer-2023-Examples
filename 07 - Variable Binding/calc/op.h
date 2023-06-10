@@ -4,7 +4,9 @@
 #define OP_H
 #include <iostream>
 #include <vector>
+#include <map>
 #include "lexer.h"
+
 
 //////////////////////////////////////////
 // Multi-Typed Result Returns
@@ -42,6 +44,28 @@ std::ostream& operator<<(std::ostream& os, const Result &result);
 
 // A macro to assign the correct numeric field
 #define NUM_ASSIGN(res, n) ((res).type == INTEGER ? (res).val.i=(n) : (res).val.r=(n))
+
+
+//////////////////////////////////////////
+// Variable Storage
+//////////////////////////////////////////
+class RefEnv {
+public:
+    // constructor
+    RefEnv();
+
+    // declare a variable
+    virtual void declare(const std::string &name, ResultType type);
+
+    // check to see if a name exists in the environment
+    virtual bool exists(const std::string &name);
+
+    // retrieve a variable associative array style
+    virtual Result& operator[](const std::string &name);
+
+private:
+    std::map<std::string, Result> _symtab;
+};
 
 
 //////////////////////////////////////////

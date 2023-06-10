@@ -1,7 +1,12 @@
 #include <iostream>
 #include <cmath>
+#include <stdexcept>
 #include "lexer.h"
 #include "op.h"
+
+// global reference environment for variables
+static RefEnv env;
+
 
 //////////////////////////////////////////
 // Helper Functions
@@ -52,6 +57,52 @@ std::ostream& operator<<(std::ostream& os, const Result &result)
 
     return os;
 }
+
+
+//////////////////////////////////////////
+// Variable Storage
+//////////////////////////////////////////
+
+// constructor
+RefEnv::RefEnv()
+{
+    // nothing to do
+}
+
+
+// declare a variable
+void RefEnv::declare(const std::string &name, ResultType type)
+{
+    // names must be unique
+    if(exists(name)) {
+        throw std::runtime_error("Redeclaration of " + name);
+    }
+
+    // create the variable and add it to the table
+    Result var;
+    var.type = type;
+    _symtab[name] = var;
+}
+
+
+// check to see if a name exists in the environment
+bool RefEnv::exists(const std::string &name)
+{
+    return _symtab.find(name) != _symtab.end();
+}
+
+
+// retrieve a variable associative array style
+Result& RefEnv::operator[](const std::string &name)
+{
+    // names must exist
+    if(not exists(name)) {
+        throw std::runtime_error(name + " not defined.");
+    }
+
+    return _symtab[name];
+}
+
 
 
 //////////////////////////////////////////
@@ -247,9 +298,9 @@ Program::Program(LexerToken _token) : NaryOp(_token)
 
 Result Program::eval()
 {
-    // evaluate and print each statement in the program
+    // evaluate each statement in the program
     for(auto itr = begin(); itr != end(); itr++) {
-        std::cout << (*itr)->eval() << std::endl;
+        (*itr)->eval();
     }
 
     // programs return void
@@ -529,10 +580,7 @@ Var::Var(LexerToken _token) : ParseTree(_token)
 
 Result Var::eval()
 {
-    Result result;
-    result.type = VOID;
-
-    return result;
+    return env[token().lexeme];;
 }
 
 
@@ -549,6 +597,9 @@ Result Print::eval()
     Result result;
     result.type = VOID;
 
+    //print the result of the child
+    std::cout << child()->eval() << std::endl;
+
     return result;
 }
 
@@ -562,8 +613,23 @@ VarDecl::VarDecl(LexerToken _token) : UnaryOp(_token)
 
 Result VarDecl::eval()
 {
+    ResultType var_type;
     Result result;
     result.type = VOID;
+
+    //get the variable type
+    switch(token().token)
+    {
+        case INTEGER_DECL:
+            var_type = INTEGER;
+            break;
+        case REAL_DECL:
+            var_type = REAL;
+            break;
+    }
+
+    //perform the declaration
+    env.declare(child()->token().lexeme, var_type);
 
     return result;
 }
@@ -579,6 +645,13 @@ Assign::Assign(LexerToken _token) : BinaryOp(_token)
 
 Result Assign::eval()
 {
+    // get the value and name to assign
+    Result val = right()->eval();
+    std::string name = left()->token().lexeme;
+
+    //perform the assignment
+    NUM_ASSIGN(env[name], NUM_RESULT(val));
+
     Result result;
     result.type = VOID;
 
