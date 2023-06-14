@@ -278,4 +278,49 @@ public:
     Assign(LexerToken _token);
     virtual Result eval();
 };
+
+
+// An array access operation
+class ArrayDecl: public BinaryOp 
+{
+public:
+    ArrayDecl(LexerToken _token);
+    virtual Result eval();
+};
+
+
+// An array Access operation
+class ArrayAccess: public BinaryOp 
+{
+public:
+    ArrayAccess(LexerToken _token);
+    virtual Result eval();
+};
+
+
+// An array index node
+class ArrayIndex: public NaryOp
+{
+public:
+    ArrayIndex(LexerToken _token);
+    virtual Result eval();
+};
+
+
+// A record definition operation
+class RecordDef: public NaryOp 
+{
+public:
+    RecordDef(LexerToken _token);
+    virtual Result eval();
+};
+
+
+// A record access operation
+class RecordAccess: public BinaryOp
+{
+public:
+    RecordAccess(LexerToken _token);
+    virtual Result eval();
+};
 #endif
