@@ -5,7 +5,7 @@ Parser Grammar
 
 < Statement >   ::= IDENTIFIER < Statement' > NEWLINE
                     | < Var-Decl > NEWLINE
-                    | < Record-Def' >
+                    | < Record-Def >
                     | < Print > NEWLINE
                     | < Expression > NEWLINE
 
