@@ -44,7 +44,7 @@
                     | < Ref >
 
 < Ref >         ::= < Identifier >
-                    | < Ref > "." < Identifier >
+                    | < Ref > "." < Ref >
                     | < Ref > "[" < Index > "]"
 
 < Index >       ::= < Index > "," < Expression >

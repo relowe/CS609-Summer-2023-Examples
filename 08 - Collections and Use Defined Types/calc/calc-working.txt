@@ -3,21 +3,26 @@ Parser Grammar
 < Program >     ::= < Program > < Statement > 
                     | < Statement >
 
-< Statement >   ::= < Identifier > < Statement' > NEWLINE
+< Statement >   ::= IDENTIFIER < Statement' > NEWLINE
                     | < Var-Decl > NEWLINE
-                    | < Record-Def >
+                    | < Record-Def' >
                     | < Print > NEWLINE
                     | < Expression > NEWLINE
 
 < Statement' >  ::= EQUAL < Expression > 
-                    | < Record-Decl >
+                    | < Record-Decl' >
                     | < Expression' >
 
 < Var-Decl >    ::= < Type > < Identifier >
                     | < Type > LBRACKET < Bounds > RBRACKET IDENTIFIER
                     | < Record-Decl >
 
-< Record-Decl > ::= IDENTIFIER IDENTIFIER
+< Type >        ::= INTEGER | REAL 
+
+< Record-Decl > ::= IDENTIFIER < Record-Decl' >
+
+< Record-Decl' >::= IDENTIFIER
+                    | LBRACKET < Bounds > RBRACKET IDENTIFIER
 
 < Record-Def >  ::= RECORD < Identifier > NEWLINE < Fields > END
 
@@ -26,8 +31,6 @@ Parser Grammar
 
 < Bounds >      ::= < Bounds > COMMA INTLIT
                     | INTLIT
-
-< Type >        ::= INTEGER | REAL 
 
 < Print >       ::= PRINT < Expression >
 
@@ -57,9 +60,11 @@ Parser Grammar
 < Index >       ::= < Index > COMMA < Expression >
                     | < Expression >
 
-< Ref >         ::= IDENTIFIER
-                    | < Ref > DOT IDENTIFIER
-                    | < Ref > LBRACKET < Index > RBRACKET
+< Ref >         ::= IDENTIFIER < Ref' >
+
+< Ref' >        ::= DOT < Ref >
+                    | LBRACKET < Index > RBracket
+                    | ""
 
 
 
