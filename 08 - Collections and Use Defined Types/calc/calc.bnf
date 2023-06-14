@@ -3,10 +3,20 @@
 
 < Statement >   ::= < Expression > "\n"
                     | < Var-Decl > "\n"
+                    | < Record-Def >
                     | < Assignment > "\n"
                     | < Print > "\n"
 
+< Record-Def >  ::= "record" < Identifier > "\n" < Fields > "end" "\n"
+
+< Fields >      ::= < Fields > < Var-Decl > "\n"
+                    | < Var-Decl > "\n
+
 < Var-Decl >    ::= < Type > < Identifier >
+                    | < Type > "[" < Bounds > "]" < Identifier >
+
+< Bounds >      ::= < Bounds > "," < Integer-Lit >
+                    | < Integer-Lit >
 
 < Assignment >  ::= < Identifier > "=" < Expression >
 
