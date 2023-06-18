@@ -1,0 +1,25 @@
+# test records
+record point
+    real x
+    real y
+end
+
+point p1
+point p2
+p1.x = 1
+p1.y = 1
+p1.x = 2
+p2.x = 2
+
+real dist
+dist = (p1.x - p2.x)^2
+dist = dist + (P1.y - p2.y)^2
+dist = dist ^ 0.5
+print dist
+
+#test arrays
+int [3,3] m
+m[0,0] = 1
+m[1,1] = 2
+print m[0,0]
+print m[1,1]
