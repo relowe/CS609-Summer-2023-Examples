@@ -18,7 +18,7 @@
 < Bounds >      ::= < Bounds > "," < Integer-Lit >
                     | < Integer-Lit >
 
-< Assignment >  ::= < Identifier > "=" < Expression >
+< Assignment >  ::= < Ref > "=" < Expression >
 
 < Type >        ::= "integer" | "real"
 

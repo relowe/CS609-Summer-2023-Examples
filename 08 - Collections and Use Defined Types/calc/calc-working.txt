@@ -3,7 +3,7 @@ Parser Grammar
 < Program >     ::= < Program > < Statement > 
                     | < Statement >
 
-< Statement >   ::= IDENTIFIER < Statement' > NEWLINE
+< Statement >   ::= < Ref > < Statement' > NEWLINE
                     | < Var-Decl > NEWLINE
                     | < Record-Def >
                     | < Print > NEWLINE
@@ -57,7 +57,6 @@ Parser Grammar
                     | REALLIT
                     | < Ref >
 
-< Index >       ::= < Index > COMMA < Expression >
                     | < Expression >
 
 < Ref >         ::= IDENTIFIER < Ref' >
@@ -65,6 +64,8 @@ Parser Grammar
 < Ref' >        ::= DOT < Ref >
                     | LBRACKET < Index > RBracket
                     | ""
+
+< Index >       ::= < Index > COMMA < Expression >
 
 
 
