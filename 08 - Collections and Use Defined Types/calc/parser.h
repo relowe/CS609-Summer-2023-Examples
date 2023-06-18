@@ -42,12 +42,20 @@ protected:
     virtual ParseTree *parse_expression();
     virtual ParseTree *parse_expression_prime(ParseTree *left);
     virtual ParseTree *parse_var_decl();
+    virtual ParseTree *parse_record_decl();
+    virtual ParseTree *parse_record_decl_prime(ParseTree *left);
+    virtual ParseTree *parse_record_def();
+    virtual ParseTree *parse_fields(NaryOp *obj);
+    virtual ParseTree *parse_bounds();
     virtual ParseTree *parse_print();
     virtual ParseTree *parse_term();
     virtual ParseTree *parse_term_prime(ParseTree *left);
     virtual ParseTree *parse_factor();
     virtual ParseTree *parse_base();
     virtual ParseTree *parse_number();
+    virtual ParseTree *parse_index();
+    virtual ParseTree *parse_ref();
+    virtual ParseTree *parse_ref_prime(ParseTree *left);
 
 private:
     Lexer &_lexer;

@@ -657,3 +657,93 @@ Result Assign::eval()
 
     return result;
 }
+
+
+//////////////////////////////////////////
+// ArrayDecl Impelementation
+//////////////////////////////////////////
+ArrayDecl::ArrayDecl(LexerToken _token) : BinaryOp(_token)
+{
+}
+
+
+Result ArrayDecl::eval()
+{
+
+    //return void
+    Result result;
+    result.type = VOID;
+    return result;
+}
+
+
+//////////////////////////////////////////
+// ArrayAccess Implementation
+//////////////////////////////////////////
+ArrayAccess::ArrayAccess(LexerToken _token) : BinaryOp(_token) 
+{
+}
+
+Result ArrayAccess::eval()
+{
+
+    //return void
+    Result result;
+    result.type = VOID;
+    return result;
+}
+
+
+//////////////////////////////////////////
+// ArrayIndex Implementation 
+//////////////////////////////////////////
+// An array index node
+ArrayIndex::ArrayIndex(LexerToken _token) : NaryOp(_token)
+{
+}
+
+
+Result ArrayIndex::eval()
+{
+
+    //return void
+    Result result;
+    result.type = VOID;
+    return result;
+}
+
+
+//////////////////////////////////////////
+// RecordDef Implementation
+//////////////////////////////////////////
+RecordDef::RecordDef(LexerToken _token) : NaryOp(_token) 
+{
+}
+
+
+Result RecordDef::eval()
+{
+
+    //return void
+    Result result;
+    result.type = VOID;
+    return result;
+}
+
+
+//////////////////////////////////////////
+// RecordAccess Implementation
+//////////////////////////////////////////
+RecordAccess::RecordAccess(LexerToken _token) : BinaryOp(_token)
+{
+}
+
+
+Result RecordAccess::eval()
+{
+
+    //return void
+    Result result;
+    result.type = VOID;
+    return result;
+}

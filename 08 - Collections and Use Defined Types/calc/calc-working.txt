@@ -3,15 +3,34 @@ Parser Grammar
 < Program >     ::= < Program > < Statement > 
                     | < Statement >
 
-< Statement >   ::= < Identifier > < Statement' > NEWLINE
+< Statement >   ::= < Ref > < Statement' > NEWLINE
                     | < Var-Decl > NEWLINE
+                    | < Record-Def >
                     | < Print > NEWLINE
                     | < Expression > NEWLINE
 
 < Statement' >  ::= EQUAL < Expression > 
+                    | < Record-Decl' >
                     | < Expression' >
 
 < Var-Decl >    ::= < Type > < Identifier >
+                    | < Type > LBRACKET < Bounds > RBRACKET IDENTIFIER
+                    | < Record-Decl >
+
+< Type >        ::= INTEGER | REAL 
+
+< Record-Decl > ::= IDENTIFIER < Record-Decl' >
+
+< Record-Decl' >::= IDENTIFIER
+                    | LBRACKET < Bounds > RBRACKET IDENTIFIER
+
+< Record-Def >  ::= RECORD < Identifier > NEWLINE < Fields > END
+
+< Fields >      ::= < Fields > < Var-Decl > NEWLINE
+                    | < Var-Decl > NEWLINE
+
+< Bounds >      ::= < Bounds > COMMA INTLIT
+                    | INTLIT
 
 < Print >       ::= PRINT < Expression >
 
@@ -36,7 +55,18 @@ Parser Grammar
 
 < Number >      ::= INTLIT
                     | REALLIT
-                    | IDENTIFIER
+                    | < Ref >
+
+                    | < Expression >
+
+< Ref >         ::= IDENTIFIER < Ref' >
+
+< Ref' >        ::= DOT < Ref >
+                    | LBRACKET < Index > RBracket
+                    | ""
+
+< Index >       ::= < Index > COMMA < Expression >
+
 
 
 Lexer Grammar
@@ -56,3 +86,10 @@ IDENTIFIER  [a-zA-Z_][a-zA-Z0-9_]*
 INTEGER     integer
 REAL        real
 EQUAL       =
+RECORD      record
+END         end
+LBRACKET    [
+RBRACKET    ]
+COMMA       ,
+DOT         .
+

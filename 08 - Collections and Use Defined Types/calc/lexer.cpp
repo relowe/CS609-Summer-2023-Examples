@@ -22,7 +22,13 @@ const char* TSTR[] = {
     "IDENTIFIER",
     "INTEGER",
     "REAL",
-    "EQUAL"
+    "EQUAL",
+    "RECORD",
+    "END",
+    "LBRACKET",
+    "RBRACKET",
+    "COMMA",
+    "DOT"
 };
 
 
@@ -235,6 +241,22 @@ bool Lexer::lex_single()
             _curtok.token = EQUAL;
             break;
 
+        case '[':
+            _curtok.token = LBRACKET;
+            break;
+
+        case ']':
+            _curtok.token = RBRACKET;
+            break;
+
+        case ',':
+            _curtok.token = COMMA;
+            break;
+
+        case '.':
+            _curtok.token = DOT;
+            break;
+
         default:
             return false;
     }
@@ -308,6 +330,10 @@ bool Lexer::lex_kw_id()
         _curtok.token = INTEGER_DECL;
     } else if(_curtok.lexeme == "real") {
         _curtok.token = REAL_DECL;
+    } else if(_curtok.lexeme == "record") {
+        _curtok.token = RECORD;
+    } else if(_curtok.lexeme == "end") {
+        _curtok.token = END;
     }
 
     return true;
