@@ -262,7 +262,6 @@ ParseTree *Parser::parse_bounds()
     do {
         must_be(INTLIT);
         result->push(parse_number());
-        next();
 
         //keep going so long as there is a comma
         if(has(COMMA)) {
@@ -452,7 +451,6 @@ ParseTree *Parser::parse_index()
 
     do {
         result->push(parse_expression());
-        next();
 
         //keep going so long as there is a comma
         if(has(COMMA)) {
