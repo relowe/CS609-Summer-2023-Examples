@@ -15,6 +15,7 @@ union ResultField
 {
     int i;
     double r;
+    void *ptr;  // Pointer to other field types
 };
 
 
@@ -22,7 +23,10 @@ enum ResultType
 {
     VOID=0,
     INTEGER,
-    REAL
+    REAL,
+    RECORD_DEF,
+    RECORD_VAR,
+    ARRAY_VAR
 };
 
 
@@ -244,12 +248,21 @@ protected:
 };
 
 
+// Abstract class for accessing records
+class Accessor 
+{
+public:
+    virtual Result& eval_ref(RefEnv &env)=0;
+};
+
+
 // A Variable Retrieval
-class Var: public ParseTree
+class Var: public ParseTree,Accessor
 {
 public:
     Var(LexerToken _token);
     virtual Result eval(RefEnv &env);
+    virtual Result &eval_ref(RefEnv &env);
 };
 
 
@@ -290,11 +303,12 @@ public:
 
 
 // An array Access operation
-class ArrayAccess: public BinaryOp 
+class ArrayAccess: public BinaryOp,Accessor
 {
 public:
     ArrayAccess(LexerToken _token);
     virtual Result eval(RefEnv &env);
+    virtual Result &eval_ref(RefEnv &env);
 };
 
 
@@ -317,10 +331,11 @@ public:
 
 
 // A record access operation
-class RecordAccess: public BinaryOp
+class RecordAccess: public BinaryOp,Accessor
 {
 public:
     RecordAccess(LexerToken _token);
     virtual Result eval(RefEnv &env);
+    virtual Result &eval_ref(RefEnv &env);
 };
 #endif

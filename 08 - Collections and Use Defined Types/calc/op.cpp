@@ -581,6 +581,11 @@ Result Var::eval(RefEnv &env)
 }
 
 
+Result& Var::eval_ref(RefEnv &env)
+{
+}
+
+
 //////////////////////////////////////////
 // Print Implementation
 //////////////////////////////////////////
@@ -691,6 +696,11 @@ Result ArrayAccess::eval(RefEnv &env)
 }
 
 
+Result& ArrayAccess::eval_ref(RefEnv &env)
+{
+}
+
+
 //////////////////////////////////////////
 // ArrayIndex Implementation 
 //////////////////////////////////////////
@@ -743,4 +753,9 @@ Result RecordAccess::eval(RefEnv &env)
     Result result;
     result.type = VOID;
     return result;
+}
+
+
+Result& RecordAccess::eval_ref(RefEnv &env)
+{
 }
