@@ -565,24 +565,31 @@ void ParseTree::print_prefix(int depth) const
 }
 
 
+//////////////////////////////////////////
+// Accessor Implementation
+//////////////////////////////////////////
+Accessor::Accessor(LexerToken _token) : ParseTree(_token)
+{
+}
+
 
 //////////////////////////////////////////
 // Var Implementation
 //////////////////////////////////////////
-
-Var::Var(LexerToken _token) : ParseTree(_token)
+Var::Var(LexerToken _token) : Accessor(_token)
 {
 }
 
 
 Result Var::eval(RefEnv &env)
 {
-    return env[token().lexeme];;
+    return eval_ref(env);
 }
 
 
 Result& Var::eval_ref(RefEnv &env)
 {
+    return env[token().lexeme];
 }
 
 
@@ -647,12 +654,15 @@ Assign::Assign(LexerToken _token) : BinaryOp(_token)
 
 Result Assign::eval(RefEnv &env)
 {
+
     // get the value and name to assign
     Result val = right()->eval(env);
     std::string name = left()->token().lexeme;
 
     //perform the assignment
-    NUM_ASSIGN(env[name], NUM_RESULT(val));
+    Accessor *var = (Accessor*) left();
+    Result &var_ref = var->eval_ref(env);
+    NUM_ASSIGN(var_ref, NUM_RESULT(val));
 
     Result result;
     result.type = VOID;
@@ -682,7 +692,7 @@ Result ArrayDecl::eval(RefEnv &env)
 //////////////////////////////////////////
 // ArrayAccess Implementation
 //////////////////////////////////////////
-ArrayAccess::ArrayAccess(LexerToken _token) : BinaryOp(_token) 
+ArrayAccess::ArrayAccess(LexerToken _token) : BinaryOp(_token), Accessor(_token)
 {
 }
 
@@ -741,7 +751,7 @@ Result RecordDef::eval(RefEnv &env)
 //////////////////////////////////////////
 // RecordAccess Implementation
 //////////////////////////////////////////
-RecordAccess::RecordAccess(LexerToken _token) : BinaryOp(_token)
+RecordAccess::RecordAccess(LexerToken _token) : BinaryOp(_token), Accessor(_token)
 {
 }
 

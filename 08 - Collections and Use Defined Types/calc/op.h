@@ -249,15 +249,16 @@ protected:
 
 
 // Abstract class for accessing records
-class Accessor 
+class Accessor : public ParseTree
 {
 public:
+    Accessor(LexerToken _token);
     virtual Result& eval_ref(RefEnv &env)=0;
 };
 
 
 // A Variable Retrieval
-class Var: public ParseTree,Accessor
+class Var: public Accessor
 {
 public:
     Var(LexerToken _token);
@@ -303,7 +304,7 @@ public:
 
 
 // An array Access operation
-class ArrayAccess: public BinaryOp,Accessor
+class ArrayAccess: public BinaryOp, public Accessor
 {
 public:
     ArrayAccess(LexerToken _token);
@@ -331,7 +332,7 @@ public:
 
 
 // A record access operation
-class RecordAccess: public BinaryOp,Accessor
+class RecordAccess: public BinaryOp, public Accessor
 {
 public:
     RecordAccess(LexerToken _token);
