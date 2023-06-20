@@ -82,7 +82,7 @@ public:
     virtual LexerToken token() const;
 
     // evaluate the parse tree
-    virtual Result eval()=0;
+    virtual Result eval(RefEnv &env)=0;
 
     // print the tree (for debug purposes)
     virtual void print(int depth) const;
@@ -173,7 +173,7 @@ class Program : public NaryOp
 {
 public:
     Program(LexerToken _token);
-    virtual Result eval();
+    virtual Result eval(RefEnv &env);
     virtual void print(int depth) const;
 };
 
@@ -183,7 +183,7 @@ class Add : public BinaryOp
 {
 public:
     Add(LexerToken _token);
-    virtual Result eval();
+    virtual Result eval(RefEnv &env);
 };
 
 
@@ -192,7 +192,7 @@ class Sub : public BinaryOp
 {
 public:
     Sub(LexerToken _token);
-    virtual Result eval();
+    virtual Result eval(RefEnv &env);
 };
 
 
@@ -201,7 +201,7 @@ class Mul: public BinaryOp
 {
 public:
     Mul(LexerToken _token);
-    virtual Result eval();
+    virtual Result eval(RefEnv &env);
 };
 
 
@@ -210,7 +210,7 @@ class Div: public BinaryOp
 {
 public:
     Div(LexerToken _token);
-    virtual Result eval();
+    virtual Result eval(RefEnv &env);
 };
 
 
@@ -219,7 +219,7 @@ class Pow: public BinaryOp
 {
 public:
     Pow(LexerToken _token);
-    virtual Result eval();
+    virtual Result eval(RefEnv &env);
 };
 
 
@@ -228,7 +228,7 @@ class Neg: public UnaryOp
 {
 public:
     Neg(LexerToken _token);
-    virtual Result eval();
+    virtual Result eval(RefEnv &env);
     virtual void print(int depth) const;
 };
 
@@ -238,7 +238,7 @@ class Number: public ParseTree
 {
 public:
     Number(LexerToken _token);
-    virtual Result eval();
+    virtual Result eval(RefEnv &env);
 protected:
     Result _val;
 };
@@ -249,7 +249,7 @@ class Var: public ParseTree
 {
 public:
     Var(LexerToken _token);
-    virtual Result eval();
+    virtual Result eval(RefEnv &env);
 };
 
 
@@ -258,7 +258,7 @@ class Print: public UnaryOp
 {
 public:
     Print(LexerToken _token);
-    virtual Result eval();
+    virtual Result eval(RefEnv &env);
 };
 
 
@@ -267,7 +267,7 @@ class VarDecl: public UnaryOp
 {
 public:
     VarDecl(LexerToken _token);
-    virtual Result eval();
+    virtual Result eval(RefEnv &env);
 };
 
 
@@ -276,7 +276,7 @@ class Assign : public BinaryOp
 {
 public:
     Assign(LexerToken _token);
-    virtual Result eval();
+    virtual Result eval(RefEnv &env);
 };
 
 
@@ -285,7 +285,7 @@ class ArrayDecl: public BinaryOp
 {
 public:
     ArrayDecl(LexerToken _token);
-    virtual Result eval();
+    virtual Result eval(RefEnv &env);
 };
 
 
@@ -294,7 +294,7 @@ class ArrayAccess: public BinaryOp
 {
 public:
     ArrayAccess(LexerToken _token);
-    virtual Result eval();
+    virtual Result eval(RefEnv &env);
 };
 
 
@@ -303,7 +303,7 @@ class ArrayIndex: public NaryOp
 {
 public:
     ArrayIndex(LexerToken _token);
-    virtual Result eval();
+    virtual Result eval(RefEnv &env);
 };
 
 
@@ -312,7 +312,7 @@ class RecordDef: public NaryOp
 {
 public:
     RecordDef(LexerToken _token);
-    virtual Result eval();
+    virtual Result eval(RefEnv &env);
 };
 
 
@@ -321,6 +321,6 @@ class RecordAccess: public BinaryOp
 {
 public:
     RecordAccess(LexerToken _token);
-    virtual Result eval();
+    virtual Result eval(RefEnv &env);
 };
 #endif
