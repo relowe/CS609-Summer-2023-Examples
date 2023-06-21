@@ -24,7 +24,11 @@ enum Token
     IDENTIFIER,
     INTEGER_DECL,
     REAL_DECL,
-    EQUAL
+    EQUAL,
+    NOTEQUAL,
+    WHILE,
+    IF,
+    END
 };
 
 // translate tokens into strings for easy debugging

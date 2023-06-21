@@ -7,6 +7,8 @@ Parser Grammar
                     | < Var-Decl > NEWLINE
                     | < Print > NEWLINE
                     | < Expression > NEWLINE
+                    | < While > NEWLINE
+                    | < Branch > NEWLINE
 
 < Statement' >  ::= EQUAL < Expression > 
                     | < Expression' >
@@ -14,6 +16,16 @@ Parser Grammar
 < Var-Decl >    ::= < Type > < Identifier >
 
 < Print >       ::= PRINT < Expression >
+
+< While >       ::= WHILE < Condition > NEWLINE < Block >
+
+< Branch >      ::= IF < Condition > NEWLINE < Block >
+
+< Condition>    ::= < Expression > EQUAL < Expression >
+                    | < Expression > NOTEQUAL  < Expression >
+
+< Block >       ::= < Block > < Statement > 
+                    | < Statement > END
 
 < Expression >  ::= < Term > < Expression' >
 
@@ -56,3 +68,6 @@ IDENTIFIER  [a-zA-Z_][a-zA-Z0-9_]*
 INTEGER     integer
 REAL        real
 EQUAL       =
+NOTEQUAL    !=
+WHILE       while
+IF          if

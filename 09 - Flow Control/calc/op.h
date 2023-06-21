@@ -278,4 +278,40 @@ public:
     Assign(LexerToken _token);
     virtual Result eval();
 };
+
+
+// A while loop
+class While : public BinaryOp
+{
+public:
+    While(LexerToken _token);
+    virtual Result eval();
+};
+
+
+// A branch
+class Branch : public BinaryOp
+{
+public:
+    Branch(LexerToken _token);
+    virtual Result eval();
+};
+
+
+// An equal comparison
+class Equal : public BinaryOp
+{
+public:
+    Equal(LexerToken _token);
+    virtual Result eval();
+};
+
+
+// A not equal comparison
+class NotEqual : public BinaryOp
+{
+public:
+    NotEqual(LexerToken _token);
+    virtual Result eval();
+};
 #endif

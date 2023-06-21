@@ -78,6 +78,8 @@ ParseTree *Parser::parse_program()
  *                     | < Var-Decl > NEWLINE
  *                     | < Print > NEWLINE
  *                     | < Expression > NEWLINE
+ *                     | < While > NEWLINE
+ *                     | < Branch > NEWLINE
  */
 ParseTree *Parser::parse_statement()
 {
@@ -92,6 +94,10 @@ ParseTree *Parser::parse_statement()
         result = parse_var_decl();
     } else if(has(PRINT)) {
         result = parse_print();
+    } else if(has(WHILE)) {
+        result = parse_while();
+    } else if(has(IF)) {
+        result = parse_branch();
     } else {
         result = parse_expression();
     }
@@ -149,6 +155,78 @@ ParseTree *Parser::parse_print()
     return result;
 }
 
+
+/*
+ * < While >       ::= WHILE < Condition > NEWLINE < Block >
+ */
+ParseTree *Parser::parse_while()
+{
+    must_be(WHILE);
+    While *result = new While(curtok());
+    next();
+    result->left(parse_condition());
+    must_be(NEWLINE);
+    next();
+    result->right(parse_block());
+    return result;
+}
+
+
+/*
+ * < Branch >      ::= IF < Condition > NEWLINE < Block >
+ */
+ParseTree *Parser::parse_branch()
+{
+    must_be(IF);
+    Branch *result = new Branch(curtok());
+    next();
+    result->left(parse_condition());
+    must_be(NEWLINE);
+    next();
+    result->right(parse_block());
+
+    return result;
+}
+
+
+/*
+ * < Condition>    ::= < Expression > EQUAL < Expression >
+ *                     | < Expression > NOTEQUAL  < Expression >
+ */
+ParseTree *Parser::parse_condition() 
+{
+    ParseTree *lexpr = parse_expression();
+    BinaryOp *result;
+    if(has(EQUAL)) {
+        result = new Equal(curtok());
+        next();
+    } else {
+        must_be(NOTEQUAL);
+        result = new NotEqual(curtok());
+        next();
+    }
+    result->left(lexpr);
+    result->right(parse_expression());
+
+    return result;
+}
+
+
+/*
+ * < Block >       ::= < Block > < Statement > 
+ *                     | < Statement > END
+ */
+ParseTree *Parser::parse_block()
+{
+    Program *result = new Program(curtok());
+
+    do {
+        result->push(parse_statement());
+    } while(not has(END));
+
+    next();
+    return result;
+}
 
 
 /*

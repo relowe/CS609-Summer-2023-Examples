@@ -657,3 +657,89 @@ Result Assign::eval()
 
     return result;
 }
+
+
+//////////////////////////////////////////
+// While implementation
+//////////////////////////////////////////
+While::While(LexerToken _token) : BinaryOp(_token) 
+{
+}
+
+
+Result While::eval()
+{
+    while(NUM_RESULT(left()->eval()) != 0) {
+        right()->eval();
+    }
+
+    Result result;
+    result.type = VOID;
+    return result;
+}
+
+
+//////////////////////////////////////////
+// Branch implementation
+//////////////////////////////////////////
+Branch::Branch(LexerToken _token) : BinaryOp(_token) 
+{
+}
+
+
+Result Branch::eval()
+{
+    if(NUM_RESULT(left()->eval()) != 0) {
+        right()->eval();
+    }
+
+    Result result;
+    result.type = VOID;
+    return result;
+}
+
+
+//////////////////////////////////////////
+// Equal impelmenation
+//////////////////////////////////////////
+Equal::Equal(LexerToken _token) : BinaryOp(_token)
+{
+}
+
+
+Result Equal::eval()
+{
+    Result result;
+    result.type = INTEGER;
+
+    if(NUM_RESULT(left()->eval()) == NUM_RESULT(right()->eval())) {
+        result.val.i = 1;
+    } else {
+        result.val.i = 0;
+    }
+
+    return result;
+}
+
+
+//////////////////////////////////////////
+// NotEqual impelmenation
+//////////////////////////////////////////
+NotEqual::NotEqual(LexerToken _token) : BinaryOp(_token)
+{
+}
+
+
+Result NotEqual::eval()
+{
+    Result result;
+    result.type = INTEGER;
+
+    if(NUM_RESULT(left()->eval()) != NUM_RESULT(right()->eval())) {
+        result.val.i = 1;
+    } else {
+        result.val.i = 0;
+    }
+
+    return result;
+}

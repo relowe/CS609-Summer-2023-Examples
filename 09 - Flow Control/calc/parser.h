@@ -43,6 +43,10 @@ protected:
     virtual ParseTree *parse_expression_prime(ParseTree *left);
     virtual ParseTree *parse_var_decl();
     virtual ParseTree *parse_print();
+    virtual ParseTree *parse_while();
+    virtual ParseTree *parse_branch();
+    virtual ParseTree *parse_condition();
+    virtual ParseTree *parse_block();
     virtual ParseTree *parse_term();
     virtual ParseTree *parse_term_prime(ParseTree *left);
     virtual ParseTree *parse_factor();

@@ -22,7 +22,11 @@ const char* TSTR[] = {
     "IDENTIFIER",
     "INTEGER",
     "REAL",
-    "EQUAL"
+    "EQUAL",
+    "NOTEQUAL",
+    "WHILE",
+    "IF",
+    "END"
 };
 
 
@@ -235,6 +239,13 @@ bool Lexer::lex_single()
             _curtok.token = EQUAL;
             break;
 
+        case '!':
+            consume();
+            if(_cur=='=') {
+                _curtok.token = NOTEQUAL;
+            }
+            break;
+
         default:
             return false;
     }
@@ -308,6 +319,12 @@ bool Lexer::lex_kw_id()
         _curtok.token = INTEGER_DECL;
     } else if(_curtok.lexeme == "real") {
         _curtok.token = REAL_DECL;
+    } else if(_curtok.lexeme == "while") {
+        _curtok.token = WHILE;
+    } else if(_curtok.lexeme == "if") {
+        _curtok.token = IF;
+    } else if(_curtok.lexeme == "end") {
+        _curtok.token = END;
     }
 
     return true;
