@@ -1,0 +1,10 @@
+     #INTLIT: 2
+   #TIMES: *
+       #INTLIT: 4
+     #PLUS: +
+       #INTLIT: 3
+ #PLUS: +
+     #INTLIT: 2
+   #PLUS: +
+     #INTLIT: 1
+INTLIT: 1

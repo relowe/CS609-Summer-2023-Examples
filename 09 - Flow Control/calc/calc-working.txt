@@ -1,0 +1,58 @@
+Parser Grammar
+==============
+< Program >     ::= < Program > < Statement > 
+                    | < Statement >
+
+< Statement >   ::= < Identifier > < Statement' > NEWLINE
+                    | < Var-Decl > NEWLINE
+                    | < Print > NEWLINE
+                    | < Expression > NEWLINE
+
+< Statement' >  ::= EQUAL < Expression > 
+                    | < Expression' >
+
+< Var-Decl >    ::= < Type > < Identifier >
+
+< Print >       ::= PRINT < Expression >
+
+< Expression >  ::= < Term > < Expression' >
+
+< Expression' > ::= PLUS < Term  > < Expression' >
+                    | MINUS < Term > < Expression' >
+                    | ""
+                    
+< Term >        ::= < Factor > < Term' >
+
+< Term' >       ::= TIMES  < Factor > < Term' >
+                    | DIVIDE < Factor > < Term' >
+                    | ""
+
+< Factor >      ::= < Base > POW < Factor >
+                    | < Base >
+
+< Base >        ::= LPAREN < Expression > RPAREN
+                    | MINUS < Expression > 
+                    | < Number >
+
+< Number >      ::= INTLIT
+                    | REALLIT
+                    | IDENTIFIER
+
+
+Lexer Grammar
+=============
+NEWLINE     \n
+PLUS        +
+MINUS       -
+TIMES       *
+DIVIDE      /
+POW         ^
+LPAREN      (
+RPAREN      )
+INTLIT      [0-9]+
+REALLIT     INTLINT.INTLIT
+PRINT       print
+IDENTIFIER  [a-zA-Z_][a-zA-Z0-9_]*
+INTEGER     integer
+REAL        real
+EQUAL       =
