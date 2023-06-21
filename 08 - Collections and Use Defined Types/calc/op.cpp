@@ -603,17 +603,9 @@ void ParseTree::print_prefix(int depth) const
 
 
 //////////////////////////////////////////
-// Accessor Implementation
-//////////////////////////////////////////
-Accessor::Accessor(LexerToken _token) : ParseTree(_token)
-{
-}
-
-
-//////////////////////////////////////////
 // Var Implementation
 //////////////////////////////////////////
-Var::Var(LexerToken _token) : Accessor(_token)
+Var::Var(LexerToken _token) : ParseTree(_token)
 {
 }
 
@@ -713,10 +705,8 @@ Result ArrayDecl::eval(RefEnv &env)
 {
     // get the bounds
     std::vector<int> bounds;
-    NaryOp *blist = (NaryOp*) left();
-    for(auto itr = blist->begin(); itr != blist->end(); itr++) {
-        bounds.push_back((int) NUM_RESULT((*itr)->eval(env)));
-    }
+    ArrayIndex *index = (ArrayIndex*) left();
+    bounds = index->get_index(env);
 
     //build the array and insert it into the environment
     ArrayVar *ar = new ArrayVar(token_to_type(token().token), bounds);
@@ -734,22 +724,31 @@ Result ArrayDecl::eval(RefEnv &env)
 //////////////////////////////////////////
 // ArrayAccess Implementation
 //////////////////////////////////////////
-ArrayAccess::ArrayAccess(LexerToken _token) : BinaryOp(_token), Accessor(_token)
+ArrayAccess::ArrayAccess(LexerToken _token) : BinaryOp(_token)
 {
 }
 
 Result ArrayAccess::eval(RefEnv &env)
 {
-
-    //return void
-    Result result;
-    result.type = VOID;
-    return result;
+    return eval_ref(env);
 }
 
 
 Result& ArrayAccess::eval_ref(RefEnv &env)
 {
+    // get the index 
+    std::vector<int> index;
+    ArrayIndex *ar_index = (ArrayIndex*) left();
+    index = ar_index->get_index(env);
+
+    //TODO: Compute for multiple dimensions
+    int offset = index[0];
+
+    //get the array
+    Result &ref = ((Var*)left())->eval_ref(env);
+    ArrayVar *ar = (ArrayVar*) (ref.val.ptr);
+
+    return ar->data[offset];
 }
 
 
@@ -768,6 +767,18 @@ Result ArrayIndex::eval(RefEnv &env)
     //return void
     Result result;
     result.type = VOID;
+    return result;
+}
+
+
+std::vector<int> ArrayIndex::get_index(RefEnv &env)
+{
+    std::vector<int> result;
+
+    for(auto itr=begin(); itr != end(); itr++) {
+        result.push_back(NUM_RESULT((*itr)->eval(env)));
+    }
+
     return result;
 }
 
@@ -793,14 +804,13 @@ Result RecordDef::eval(RefEnv &env)
 //////////////////////////////////////////
 // RecordAccess Implementation
 //////////////////////////////////////////
-RecordAccess::RecordAccess(LexerToken _token) : BinaryOp(_token), Accessor(_token)
+RecordAccess::RecordAccess(LexerToken _token) : BinaryOp(_token)
 {
 }
 
 
 Result RecordAccess::eval(RefEnv &env)
 {
-
     //return void
     Result result;
     result.type = VOID;

@@ -249,16 +249,15 @@ protected:
 
 
 // Abstract class for accessing records
-class Accessor : public ParseTree
+class Accessor 
 {
 public:
-    Accessor(LexerToken _token);
     virtual Result& eval_ref(RefEnv &env)=0;
 };
 
 
 // A Variable Retrieval
-class Var: public Accessor
+class Var: public ParseTree, public Accessor
 {
 public:
     Var(LexerToken _token);
@@ -319,6 +318,7 @@ class ArrayIndex: public NaryOp
 public:
     ArrayIndex(LexerToken _token);
     virtual Result eval(RefEnv &env);
+    virtual std::vector<int> get_index(RefEnv &env);
 };
 
 
