@@ -1,12 +1,13 @@
 #include <iostream>
 #include <cmath>
 #include <stdexcept>
+#include <vector>
 #include "lexer.h"
 #include "op.h"
 
 
 //////////////////////////////////////////
-// Helper Functions
+// Helper Functions and Types
 //////////////////////////////////////////
 static ResultType coerce(Result left, Result right) 
 {
@@ -26,6 +27,42 @@ static ResultType coerce(Result left, Result right)
     //      just default to void. Eventually, we should report a type error.
     return VOID;
 }
+
+
+static ResultType token_to_type(Token tok)
+{
+    if(tok == INTEGER_DECL) {
+        return INTEGER;
+    } else if(tok == REAL_DECL) {
+        return REAL;
+    } else {
+        return VOID;
+    }
+}
+
+
+static struct ArrayVar 
+{
+    ArrayVar(ResultType type, const std::vector<int>& bounds) : bounds(bounds)
+    {
+        //set up the default entry
+        Result entry;
+        entry.type = type;
+
+        //compute the number of elements
+        int nelements=1;
+        for(auto itr = bounds.begin(); itr != bounds.end(); itr++) {
+            nelements *= *itr;
+        }
+
+        //build the array
+        data.push_back(entry);
+    }
+
+    std::vector<int> bounds;
+    std::vector<Result> data;
+};
+
 
 
 //////////////////////////////////////////
@@ -620,6 +657,7 @@ VarDecl::VarDecl(LexerToken _token) : UnaryOp(_token)
 {
 }
 
+
 Result VarDecl::eval(RefEnv &env)
 {
     ResultType var_type;
@@ -627,15 +665,7 @@ Result VarDecl::eval(RefEnv &env)
     result.type = VOID;
 
     //get the variable type
-    switch(token().token)
-    {
-        case INTEGER_DECL:
-            var_type = INTEGER;
-            break;
-        case REAL_DECL:
-            var_type = REAL;
-            break;
-    }
+    var_type = token_to_type(token().token);
 
     //perform the declaration
     env.declare(child()->token().lexeme, var_type);
@@ -681,6 +711,18 @@ ArrayDecl::ArrayDecl(LexerToken _token) : BinaryOp(_token)
 
 Result ArrayDecl::eval(RefEnv &env)
 {
+    // get the bounds
+    std::vector<int> bounds;
+    NaryOp *blist = (NaryOp*) left();
+    for(auto itr = blist->begin(); itr != blist->end(); itr++) {
+        bounds.push_back((int) NUM_RESULT((*itr)->eval(env)));
+    }
+
+    //build the array and insert it into the environment
+    ArrayVar *ar = new ArrayVar(token_to_type(token().token), bounds);
+    std::string name = right()->token().lexeme;
+    env.declare(name, ARRAY_VAR);
+    env[name].val.ptr = ar;
 
     //return void
     Result result;
