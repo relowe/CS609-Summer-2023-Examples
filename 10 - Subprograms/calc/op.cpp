@@ -4,10 +4,6 @@
 #include "lexer.h"
 #include "op.h"
 
-// global reference environment for variables
-static RefEnv env;
-
-
 //////////////////////////////////////////
 // Helper Functions
 //////////////////////////////////////////
@@ -64,9 +60,28 @@ std::ostream& operator<<(std::ostream& os, const Result &result)
 //////////////////////////////////////////
 
 // constructor
-RefEnv::RefEnv()
+RefEnv::RefEnv() : RefEnv(nullptr)
 {
     // nothing to do
+}
+
+
+RefEnv::RefEnv(RefEnv *_parent) 
+{
+    parent(_parent);
+}
+
+
+// access/modify the parent
+RefEnv *RefEnv::parent()
+{
+    return _parent;
+}
+
+
+void RefEnv::parent(RefEnv *_parent)
+{
+    this->_parent = _parent;
 }
 
 
@@ -88,7 +103,25 @@ void RefEnv::declare(const std::string &name, ResultType type)
 // check to see if a name exists in the environment
 bool RefEnv::exists(const std::string &name)
 {
-    return _symtab.find(name) != _symtab.end();
+    // nested scope type of existing
+    // +----------------+
+    // | _parent        |
+    // |    integer x   |
+    // | +-------------+|
+    // | | this        ||
+    // | +-------------+|
+    // +----------------+
+    // Loookup becomes a recursive process
+    if(_symtab.find(name) != _symtab.end()) {
+        // we found it in the local scope
+        return true;
+    } else if(parent() == nullptr) {
+        // this is the end of the recursion
+        return false;
+    } else {
+        // search our parent
+        return parent()->exists(name);
+    }
 }
 
 
@@ -100,7 +133,13 @@ Result& RefEnv::operator[](const std::string &name)
         throw std::runtime_error(name + " not defined.");
     }
 
-    return _symtab[name];
+    if(_symtab.find(name) != _symtab.end()) {
+        // find local variables
+        return _symtab[name];
+    } else {
+        // find outside scope variables
+        return (*parent())[name];
+    }
 }
 
 
@@ -296,16 +335,15 @@ Program::Program(LexerToken _token) : NaryOp(_token)
 
 
 
-Result Program::eval()
+Result Program::eval(RefEnv &env)
 {
+    //programs return the last expression
+    Result result;
+
     // evaluate each statement in the program
     for(auto itr = begin(); itr != end(); itr++) {
-        (*itr)->eval();
+        result = (*itr)->eval(env);
     }
-
-    // programs return void
-    Result result;
-    result.type = VOID;
 
     return result;
 }
@@ -342,11 +380,11 @@ Add::Add(LexerToken _token) : BinaryOp(_token)
 }
 
 
-Result Add::eval() 
+Result Add::eval(RefEnv &env) 
 {
     // evaluate the children
-    Result l = left()->eval();
-    Result r = right()->eval();
+    Result l = left()->eval(env);
+    Result r = right()->eval(env);
 
     // get the type of the result
     Result result;
@@ -369,11 +407,11 @@ Sub::Sub(LexerToken _token) : BinaryOp(_token)
 }
 
 
-Result Sub::eval() 
+Result Sub::eval(RefEnv &env) 
 {
     // evaluate the children
-    Result l = left()->eval();
-    Result r = right()->eval();
+    Result l = left()->eval(env);
+    Result r = right()->eval(env);
 
     // get the type of the result
     Result result;
@@ -396,11 +434,11 @@ Mul::Mul(LexerToken _token) : BinaryOp(_token)
 }
 
 
-Result Mul::eval() 
+Result Mul::eval(RefEnv &env) 
 {
     // evaluate the children
-    Result l = left()->eval();
-    Result r = right()->eval();
+    Result l = left()->eval(env);
+    Result r = right()->eval(env);
 
     // get the type of the result
     Result result;
@@ -423,11 +461,11 @@ Div::Div(LexerToken _token) : BinaryOp(_token)
 }
 
 
-Result Div::eval() 
+Result Div::eval(RefEnv &env) 
 {
     // evaluate the children
-    Result l = left()->eval();
-    Result r = right()->eval();
+    Result l = left()->eval(env);
+    Result r = right()->eval(env);
 
     // get the type of the result
     Result result;
@@ -450,11 +488,11 @@ Pow::Pow(LexerToken _token) : BinaryOp(_token)
 }
 
 
-Result Pow::eval() 
+Result Pow::eval(RefEnv &env) 
 {
     // evaluate the children
-    Result l = left()->eval();
-    Result r = right()->eval();
+    Result l = left()->eval(env);
+    Result r = right()->eval(env);
 
     // get the type of the result
     Result result;
@@ -477,10 +515,10 @@ Neg::Neg(LexerToken _token) : UnaryOp(_token)
 }
 
 
-Result Neg::eval()
+Result Neg::eval(RefEnv &env)
 {
     //eval the child and then negate it
-    Result result = child()->eval();
+    Result result = child()->eval(env);
     NUM_ASSIGN(result, -NUM_RESULT(result));
 
     return result;
@@ -512,7 +550,7 @@ Number::Number(LexerToken _token) : ParseTree(_token)
 }
 
 
-Result Number::eval()
+Result Number::eval(RefEnv &env)
 {
     return _val;
 }
@@ -578,7 +616,7 @@ Var::Var(LexerToken _token) : ParseTree(_token)
 }
 
 
-Result Var::eval()
+Result Var::eval(RefEnv &env)
 {
     return env[token().lexeme];;
 }
@@ -592,13 +630,13 @@ Print::Print(LexerToken _token) : UnaryOp(_token)
 }
 
 
-Result Print::eval()
+Result Print::eval(RefEnv &env)
 {
     Result result;
     result.type = VOID;
 
     //print the result of the child
-    std::cout << child()->eval() << std::endl;
+    std::cout << child()->eval(env) << std::endl;
 
     return result;
 }
@@ -611,7 +649,7 @@ VarDecl::VarDecl(LexerToken _token) : UnaryOp(_token)
 {
 }
 
-Result VarDecl::eval()
+Result VarDecl::eval(RefEnv &env)
 {
     ResultType var_type;
     Result result;
@@ -643,10 +681,10 @@ Assign::Assign(LexerToken _token) : BinaryOp(_token)
 }
 
 
-Result Assign::eval()
+Result Assign::eval(RefEnv &env)
 {
     // get the value and name to assign
-    Result val = right()->eval();
+    Result val = right()->eval(env);
     std::string name = left()->token().lexeme;
 
     //perform the assignment
@@ -667,10 +705,10 @@ While::While(LexerToken _token) : BinaryOp(_token)
 }
 
 
-Result While::eval()
+Result While::eval(RefEnv &env)
 {
-    while(NUM_RESULT(left()->eval()) != 0) {
-        right()->eval();
+    while(NUM_RESULT(left()->eval(env)) != 0) {
+        right()->eval(env);
     }
 
     Result result;
@@ -687,10 +725,10 @@ Branch::Branch(LexerToken _token) : BinaryOp(_token)
 }
 
 
-Result Branch::eval()
+Result Branch::eval(RefEnv &env)
 {
-    if(NUM_RESULT(left()->eval()) != 0) {
-        right()->eval();
+    if(NUM_RESULT(left()->eval(env)) != 0) {
+        right()->eval(env);
     }
 
     Result result;
@@ -707,12 +745,12 @@ Equal::Equal(LexerToken _token) : BinaryOp(_token)
 }
 
 
-Result Equal::eval()
+Result Equal::eval(RefEnv &env)
 {
     Result result;
     result.type = INTEGER;
 
-    if(NUM_RESULT(left()->eval()) == NUM_RESULT(right()->eval())) {
+    if(NUM_RESULT(left()->eval(env)) == NUM_RESULT(right()->eval(env))) {
         result.val.i = 1;
     } else {
         result.val.i = 0;
@@ -730,16 +768,143 @@ NotEqual::NotEqual(LexerToken _token) : BinaryOp(_token)
 }
 
 
-Result NotEqual::eval()
+Result NotEqual::eval(RefEnv &env)
 {
     Result result;
     result.type = INTEGER;
 
-    if(NUM_RESULT(left()->eval()) != NUM_RESULT(right()->eval())) {
+    if(NUM_RESULT(left()->eval(env)) != NUM_RESULT(right()->eval(env))) {
         result.val.i = 1;
     } else {
         result.val.i = 0;
     }
 
+    return result;
+}
+
+
+//////////////////////////////////////////
+// FunctionDef Implementation
+//////////////////////////////////////////
+
+FunctionDef::FunctionDef(LexerToken _token) : ParseTree(_token)
+{
+}
+
+
+Result FunctionDef::eval(RefEnv &env)
+{
+    // insert ourselves into the environment
+    env.declare(name(), FUNCTION_TYPE);    
+    env[name()].val.ptr = this;
+
+    Result result;
+    result.type = VOID;
+    return result;
+}
+
+void FunctionDef::print(int depth) const
+{
+    print_prefix(depth);
+    std::cout << "function " << name() << std::endl;
+    parameters()->print(depth+1);
+    body()->print(depth+1);
+}
+
+
+std::string FunctionDef::name() const
+{
+    return _name;
+}
+
+
+void FunctionDef::name(const std::string &_name)
+{
+    this->_name = _name;
+}
+
+
+Program *FunctionDef::body() const
+{
+    return _body;
+}
+
+
+void FunctionDef::body(Program *_body)
+{
+    this->_body = _body;
+}
+
+ResultType FunctionDef::return_type() const
+{
+    return _return_type;
+}
+
+
+void FunctionDef::return_type(ResultType _return_type)
+{
+    this->_return_type = _return_type;
+}
+
+
+ArgList *FunctionDef::parameters() const
+{
+    return _parameters;
+}
+
+
+void FunctionDef::parameters(ArgList *_parameters)
+{
+    this->_parameters = _parameters;
+}
+
+
+//////////////////////////////////////////
+// ArgList Implementation
+//////////////////////////////////////////
+
+ArgList::ArgList(LexerToken _token) : NaryOp(_token)
+{
+}
+
+
+Result ArgList::eval(RefEnv &env)
+{
+    Result result;
+    result.type = VOID;
+    return result;
+}
+
+//////////////////////////////////////////
+// FunctionCall Implementation
+//////////////////////////////////////////
+
+FunctionCall::FunctionCall(LexerToken _token) : BinaryOp(_token)
+{
+}
+
+
+Result FunctionCall::eval(RefEnv &env)
+{
+    // get the function
+    Result fun_var = left()->eval(env);
+    FunctionDef *fun = (FunctionDef*) fun_var.val.ptr;
+    ArgList *args = (ArgList*) right();
+
+
+    //declare and bind the local parameters
+    RefEnv local(&env);
+    auto argItr = args->begin();
+    for(auto itr = fun->parameters()->begin(); itr != fun->parameters()->end(); itr++) {
+        (*itr)->eval(local);
+        VarDecl *vdec = (VarDecl*) (*itr);
+        local[vdec->child()->token().lexeme] = (*argItr)->eval(env);
+        argItr++;
+    }
+
+
+    Result result = fun->body()->eval(local);
+    if(fun->return_type() == VOID) 
+        result.type = VOID;
     return result;
 }

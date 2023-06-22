@@ -7,6 +7,7 @@
                     | < Print > "\n"
                     | < While > "\n"
                     | < Branch > "\n"
+                    | < Function-Def > "\n"
 
 < Var-Decl >    ::= < Type > < Identifier >
 
@@ -26,6 +27,16 @@
 < Block >       ::= < Block > < Statement > 
                     | < Statement > "end"
 
+< Function-Def > ::= < Function-Head > "\n" < Block > 
+
+< Function-Head >::= "function" < Identifier > "(" < Parameter-List > ")" "returns" < Return-Type >
+
+< Return-Type >  ::= < Type > | "void"
+
+< Parameter-List > ::= < Parameter-List > "," < Var-Decl >
+                       | < Var-Decl >
+                       | ""
+
 < Expression >  ::= < Expression > "+" < Term  >
                     | < Expression > "-" < Term >
                     | < Term >
@@ -44,6 +55,11 @@
 < Number >      ::= < Integer-Lit > 
                     | < Real-Lit >
                     | < Identifier >
+                    | < Identifier > "(" < Arg-List > ")"
+
+< Arg-List >    ::= < Arg-List > "," < Expression > 
+                    | < Expression >
+                    | ""
 
 < Integer-Lit > ::= < Integer-Lit > < Digit >
                     | < Digit >

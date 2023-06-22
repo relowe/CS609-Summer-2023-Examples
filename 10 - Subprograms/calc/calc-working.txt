@@ -9,6 +9,7 @@ Parser Grammar
                     | < Expression > NEWLINE
                     | < While > NEWLINE
                     | < Branch > NEWLINE
+                    | < Function-Def > NEWLINE
 
 < Statement' >  ::= EQUAL < Expression > 
                     | < Expression' >
@@ -26,6 +27,16 @@ Parser Grammar
 
 < Block >       ::= < Block > < Statement > 
                     | < Statement > END
+
+< Function-Def > ::= < Function-Head > NEWLINE < Block > 
+
+< Function-Head >::= FUNCTION IDENTIFIER LPAREN < Parameter-List > RPAREN RETURNS < Return-Type >
+
+< Return-Type >  ::= < Type > | VOIDT
+
+< Parameter-List > ::= < Parameter-List > COMMA < Var-Decl >
+                       | < Var-Decl >
+                       | ""
 
 < Expression >  ::= < Term > < Expression' >
 
@@ -48,8 +59,16 @@ Parser Grammar
 
 < Number >      ::= INTLIT
                     | REALLIT
-                    | IDENTIFIER
+                    | < Ref >
 
+< Ref >         ::= IDENTIFIER < Ref' >
+
+< Ref' >        ::= LPAREN < Arg-List > RPAREN
+                    | ""
+
+< Arg-List > ::= < Arg-List > COMMA < Expression >
+                 | < Expression >
+                 | ""
 
 Lexer Grammar
 =============
@@ -71,3 +90,8 @@ EQUAL       =
 NOTEQUAL    !=
 WHILE       while
 IF          if
+END         end
+FUNCTION    function
+RETURNS     returns
+VOIDT       void
+COMMA       ","

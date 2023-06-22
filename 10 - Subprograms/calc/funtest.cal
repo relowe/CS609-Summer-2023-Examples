@@ -1,0 +1,10 @@
+function five() returns integer
+    5
+end
+
+
+function six() returns integer
+    6
+end
+
+print five() + six()

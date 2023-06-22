@@ -11,10 +11,12 @@
 //////////////////////////////////////////
 // Multi-Typed Result Returns
 //////////////////////////////////////////
+class FunctionDef;
 union ResultField
 {
     int i;
     double r;
+    void *ptr;
 };
 
 
@@ -22,7 +24,8 @@ enum ResultType
 {
     VOID=0,
     INTEGER,
-    REAL
+    REAL,
+    FUNCTION_TYPE
 };
 
 
@@ -53,6 +56,11 @@ class RefEnv {
 public:
     // constructor
     RefEnv();
+    RefEnv(RefEnv *_parent);
+
+    // access/modify the parent
+    virtual RefEnv *parent();
+    virtual void parent(RefEnv *_parent);
 
     // declare a variable
     virtual void declare(const std::string &name, ResultType type);
@@ -65,6 +73,7 @@ public:
 
 private:
     std::map<std::string, Result> _symtab;
+    RefEnv *_parent;
 };
 
 
@@ -82,7 +91,7 @@ public:
     virtual LexerToken token() const;
 
     // evaluate the parse tree
-    virtual Result eval()=0;
+    virtual Result eval(RefEnv &env)=0;
 
     // print the tree (for debug purposes)
     virtual void print(int depth) const;
@@ -173,7 +182,7 @@ class Program : public NaryOp
 {
 public:
     Program(LexerToken _token);
-    virtual Result eval();
+    virtual Result eval(RefEnv &env);
     virtual void print(int depth) const;
 };
 
@@ -183,7 +192,7 @@ class Add : public BinaryOp
 {
 public:
     Add(LexerToken _token);
-    virtual Result eval();
+    virtual Result eval(RefEnv &env);
 };
 
 
@@ -192,7 +201,7 @@ class Sub : public BinaryOp
 {
 public:
     Sub(LexerToken _token);
-    virtual Result eval();
+    virtual Result eval(RefEnv &env);
 };
 
 
@@ -201,7 +210,7 @@ class Mul: public BinaryOp
 {
 public:
     Mul(LexerToken _token);
-    virtual Result eval();
+    virtual Result eval(RefEnv &env);
 };
 
 
@@ -210,7 +219,7 @@ class Div: public BinaryOp
 {
 public:
     Div(LexerToken _token);
-    virtual Result eval();
+    virtual Result eval(RefEnv &env);
 };
 
 
@@ -219,7 +228,7 @@ class Pow: public BinaryOp
 {
 public:
     Pow(LexerToken _token);
-    virtual Result eval();
+    virtual Result eval(RefEnv &env);
 };
 
 
@@ -228,7 +237,7 @@ class Neg: public UnaryOp
 {
 public:
     Neg(LexerToken _token);
-    virtual Result eval();
+    virtual Result eval(RefEnv &env);
     virtual void print(int depth) const;
 };
 
@@ -238,7 +247,7 @@ class Number: public ParseTree
 {
 public:
     Number(LexerToken _token);
-    virtual Result eval();
+    virtual Result eval(RefEnv &env);
 protected:
     Result _val;
 };
@@ -249,7 +258,7 @@ class Var: public ParseTree
 {
 public:
     Var(LexerToken _token);
-    virtual Result eval();
+    virtual Result eval(RefEnv &env);
 };
 
 
@@ -258,7 +267,7 @@ class Print: public UnaryOp
 {
 public:
     Print(LexerToken _token);
-    virtual Result eval();
+    virtual Result eval(RefEnv &env);
 };
 
 
@@ -267,7 +276,7 @@ class VarDecl: public UnaryOp
 {
 public:
     VarDecl(LexerToken _token);
-    virtual Result eval();
+    virtual Result eval(RefEnv &env);
 };
 
 
@@ -276,7 +285,7 @@ class Assign : public BinaryOp
 {
 public:
     Assign(LexerToken _token);
-    virtual Result eval();
+    virtual Result eval(RefEnv &env);
 };
 
 
@@ -285,7 +294,7 @@ class While : public BinaryOp
 {
 public:
     While(LexerToken _token);
-    virtual Result eval();
+    virtual Result eval(RefEnv &env);
 };
 
 
@@ -294,7 +303,7 @@ class Branch : public BinaryOp
 {
 public:
     Branch(LexerToken _token);
-    virtual Result eval();
+    virtual Result eval(RefEnv &env);
 };
 
 
@@ -303,7 +312,7 @@ class Equal : public BinaryOp
 {
 public:
     Equal(LexerToken _token);
-    virtual Result eval();
+    virtual Result eval(RefEnv &env);
 };
 
 
@@ -312,6 +321,52 @@ class NotEqual : public BinaryOp
 {
 public:
     NotEqual(LexerToken _token);
-    virtual Result eval();
+    virtual Result eval(RefEnv &env);
+};
+
+
+// ArgList 
+class ArgList : public NaryOp
+{
+public:
+    ArgList(LexerToken _token);
+    virtual Result eval(RefEnv &env);
+};
+
+
+// Define a function
+class FunctionDef : public ParseTree
+{
+public:
+    FunctionDef(LexerToken _token);
+    virtual Result eval(RefEnv &env);
+    virtual void print(int depth) const;
+
+    virtual std::string name() const;
+    virtual void name(const std::string &_name);
+
+    virtual Program *body() const;
+    virtual void body(Program *_body);
+
+    virtual ResultType return_type() const;
+    virtual void return_type(ResultType _return_type);
+
+    virtual ArgList *parameters() const;
+    virtual void parameters(ArgList *_parameters);
+
+private:
+    std::string _name;
+    ArgList *_parameters;
+    Program *_body;
+    ResultType _return_type;
+};
+
+
+// Function Call
+class FunctionCall : public BinaryOp
+{
+public:
+    FunctionCall(LexerToken _token);
+    virtual Result eval(RefEnv &env);
 };
 #endif

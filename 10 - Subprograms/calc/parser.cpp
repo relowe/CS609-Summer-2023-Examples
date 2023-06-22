@@ -80,6 +80,7 @@ ParseTree *Parser::parse_program()
  *                     | < Expression > NEWLINE
  *                     | < While > NEWLINE
  *                     | < Branch > NEWLINE
+ *                     | < Function-Def > NEWLINE
  */
 ParseTree *Parser::parse_statement()
 {
@@ -87,9 +88,8 @@ ParseTree *Parser::parse_statement()
 
     if(has(IDENTIFIER)) {
         // statement which begin with an identifier
-        ParseTree *var = new Var(curtok());
-        next();
-        result = parse_statement_prime(var);
+        ParseTree *ref = parse_ref();
+        result = parse_statement_prime(ref);
     } else if(has(INTEGER_DECL) or has(REAL_DECL)) {
         result = parse_var_decl();
     } else if(has(PRINT)) {
@@ -98,6 +98,8 @@ ParseTree *Parser::parse_statement()
         result = parse_while();
     } else if(has(IF)) {
         result = parse_branch();
+    } else if(has(FUNCTION)) {
+        result = parse_function_def();
     } else {
         result = parse_expression();
     }
@@ -228,6 +230,83 @@ ParseTree *Parser::parse_block()
     return result;
 }
 
+
+/*
+ * < Function-Def > ::= < Function-Head > NEWLINE < Block > 
+ *
+ * < Function-Head >::= FUNCTION IDENTIFIER LPAREN < Parameter-List > RPAREN RETURNS < Return-Type >
+ * 
+ * < Return-Type >  ::= < Type > | VOIDT
+ */
+ParseTree *Parser::parse_function_def()
+{
+    // function start token
+    must_be(FUNCTION);
+    FunctionDef *fun = new FunctionDef(curtok());
+    next();
+
+    // get the name of the function
+    must_be(IDENTIFIER);
+    fun->name(curtok().lexeme);
+    next();
+
+    // get the parameter list
+    must_be(LPAREN);
+    next();
+    fun->parameters((ArgList*) parse_parameter_list());
+    must_be(RPAREN);
+    next();
+
+    // get the return type
+    must_be(RETURNS);
+    next();
+    ResultType return_type;
+    if(has(INTEGER_DECL)) {
+        return_type = INTEGER;
+    } else if(has(REAL_DECL)) {
+        return_type = REAL;
+    } else {
+        must_be(VOIDT);
+        return_type = VOID;
+    } 
+    fun->return_type(return_type);
+    next();
+    must_be(NEWLINE);
+    next();
+
+    // get the block
+    fun->body((Program*) parse_block());
+
+    return fun;
+}
+
+
+/*
+< Parameter-List > ::= < Parameter-List > COMMA < Var-Decl >
+                       | < Var-Decl >
+                       | ""
+ */
+ParseTree *Parser::parse_parameter_list()
+{
+    ArgList *parameters = new ArgList(curtok());
+
+    // null list detection
+    if(has(RPAREN)) {
+        return parameters;    
+    }
+
+    bool done = false;
+    while(not done) {
+        parameters->push(parse_var_decl());
+        if(has(COMMA)) {
+            next();
+        } else {
+            done = true;
+        }
+    }
+
+    return parameters;
+}
 
 /*
  * < Expression >  ::= < Term > < Expression' >
@@ -361,14 +440,14 @@ ParseTree *Parser::parse_base()
  * < Number >      ::= INTLIT
  *                     | REALLIT
  *                     | IDENTIFIER
+ *                     | < Ref >
  */
 ParseTree *Parser::parse_number()
 {
     ParseTree *result;
 
     if(has(IDENTIFIER)) {
-        result = new Var(curtok());
-        next();
+        result = parse_ref();
     } else if(has(INTLIT)) {
         result = new Number(curtok());
         next();
@@ -379,6 +458,62 @@ ParseTree *Parser::parse_number()
     }
 
     return result;
+}
+
+
+/*
+< Ref >         ::= IDENTIFIER < Ref' >
+
+< Ref' >        ::= LPAREN < Arg-List > RPAREN
+                    | ""
+*/
+ParseTree *Parser::parse_ref()
+{
+    // get the identifier
+    must_be(IDENTIFIER);
+    Var *var = new Var(curtok());
+    next();
+
+    // check for the easy one
+    if(not has(LPAREN)) {
+        return var;
+    } else {
+        next();
+        FunctionCall *call = new FunctionCall(var->token());
+        call->left(var);
+        call->right(parse_arg_list());
+        must_be(RPAREN);
+        next();
+        return call;
+    }
+}
+
+
+/*
+ * < Arg-List > ::= < Arg-List > COMMA < Expression >
+ *                  | < Expression >
+ *                  | ""
+ */
+ParseTree *Parser::parse_arg_list()
+{
+    ArgList *parameters = new ArgList(curtok());
+
+    // null list detection
+    if(has(RPAREN)) {
+        return parameters;    
+    }
+
+    bool done = false;
+    while(not done) {
+        parameters->push(parse_expression());
+        if(has(COMMA)) {
+            next();
+        } else {
+            done = true;
+        }
+    }
+
+    return parameters;
 }
 
 

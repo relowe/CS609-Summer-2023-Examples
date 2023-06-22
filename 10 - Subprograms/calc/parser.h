@@ -47,11 +47,15 @@ protected:
     virtual ParseTree *parse_branch();
     virtual ParseTree *parse_condition();
     virtual ParseTree *parse_block();
+    virtual ParseTree *parse_function_def();
+    virtual ParseTree *parse_parameter_list();
     virtual ParseTree *parse_term();
     virtual ParseTree *parse_term_prime(ParseTree *left);
     virtual ParseTree *parse_factor();
     virtual ParseTree *parse_base();
     virtual ParseTree *parse_number();
+    virtual ParseTree *parse_ref();
+    virtual ParseTree *parse_arg_list();
 
 private:
     Lexer &_lexer;

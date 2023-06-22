@@ -28,7 +28,11 @@ enum Token
     NOTEQUAL,
     WHILE,
     IF,
-    END
+    END,
+    FUNCTION,
+    RETURNS,
+    VOIDT,
+    COMMA
 };
 
 // translate tokens into strings for easy debugging

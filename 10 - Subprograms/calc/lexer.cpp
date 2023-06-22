@@ -26,7 +26,11 @@ const char* TSTR[] = {
     "NOTEQUAL",
     "WHILE",
     "IF",
-    "END"
+    "END",
+    "FUNCTION",
+    "RETURNS",
+    "VOIDT",
+    "COMMA"
 };
 
 
@@ -246,6 +250,10 @@ bool Lexer::lex_single()
             }
             break;
 
+        case ',':
+            _curtok.token = COMMA;
+            break;
+
         default:
             return false;
     }
@@ -325,6 +333,12 @@ bool Lexer::lex_kw_id()
         _curtok.token = IF;
     } else if(_curtok.lexeme == "end") {
         _curtok.token = END;
+    } else if(_curtok.lexeme == "function") {
+        _curtok.token = FUNCTION;
+    } else if(_curtok.lexeme == "returns") {
+        _curtok.token = RETURNS;
+    } else if(_curtok.lexeme == "void") {
+        _curtok.token = VOIDT;
     }
 
     return true;
