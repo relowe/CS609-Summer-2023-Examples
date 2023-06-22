@@ -1,0 +1,61 @@
+< Program >     ::= < Program > < Statement > 
+                    | < Statement >
+
+< Statement >   ::= < Expression > "\n"
+                    | < Var-Decl > "\n"
+                    | < Assignment > "\n"
+                    | < Print > "\n"
+                    | < While > "\n"
+                    | < Branch > "\n"
+
+< Var-Decl >    ::= < Type > < Identifier >
+
+< Assignment >  ::= < Identifier > "=" < Expression >
+
+< Type >        ::= "integer" | "real"
+
+< Print >       ::= "print" < Expression >
+
+< While >       ::= "while" < Condition > "\n" < Block >
+
+< Branch >      ::= "if" < Condition > "\n" < Block >
+
+< Condition>    ::= < Expression > "=" < Expression >
+                    | < Expression > "!=" < Expression >
+
+< Block >       ::= < Block > < Statement > 
+                    | < Statement > "end"
+
+< Expression >  ::= < Expression > "+" < Term  >
+                    | < Expression > "-" < Term >
+                    | < Term >
+
+< Term >        ::= < Term  > "*"  < Factor >
+                    | < Term > "/" < Factor >
+                    | < Factor >
+
+< Factor >      ::= < Base > "^" < Factor >
+                    | < Base >
+
+< Base >        ::= "(" < Expression > ")"
+                    | "-" < Expression > 
+                    | < Number >
+
+< Number >      ::= < Integer-Lit > 
+                    | < Real-Lit >
+                    | < Identifier >
+
+< Integer-Lit > ::= < Integer-Lit > < Digit >
+                    | < Digit >
+
+< Real-Lit >    ::= < Integer-Lit > "." < Integer-Lit >
+
+< Digit >       ::= "0"|"1"|"2"|"3"|"4"|"5"|"6"|"7"|"8"|"9"
+
+< Identifier >  ::= < Identifier > < Letter >
+                    | < Identifier > "_"
+                    | < Identifier > < Digit >
+                    | < Letter >
+                    | "_"
+
+< Letter >      ::= Any letter from A-Z                    
